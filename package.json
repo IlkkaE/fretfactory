@@ -1,0 +1,30 @@
+{
+  "name": "fretfind-next-m2",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+  "jspdf": "^2.5.1",
+    "lil-gui": "^0.19.2",
+    "paper": "^0.12.17",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/ui": "^3.2.4",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "vitest": "^3.2.4"
+  }
+}
