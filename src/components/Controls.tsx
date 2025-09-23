@@ -70,7 +70,23 @@ export default function Controls() {
 					<div className="hr-thin" />
 					<div className="section-title">Fret markers</div>
 
-						<Num label="Marker offset" value={s.markerOffset} onChange={(v)=> set({ markerOffset: mm1(v) })} step={0.1} min={-50} max={50} suffix="mm" />
+										{/* Offset mode: mm or percent */}
+										<div className="row-1fr-auto text small">
+											<span>Offset mode</span>
+											<div>
+												<select className="input" aria-label="Offset mode" value={s.markerOffsetMode ?? 'mm'} onChange={(e)=> set({ markerOffsetMode: e.target.value as any })}>
+													<option value="mm">mm</option>
+													<option value="percent">%</option>
+												</select>
+											</div>
+										</div>
+
+										<Num label={`Marker offset (${s.markerOffsetMode==='percent' ? '%' : 'mm'})`} value={s.markerOffset}
+											onChange={(v)=> set({ markerOffset: s.markerOffsetMode==='percent' ? Math.max(-100, Math.min(100, v)) : mm1(v) })}
+											step={s.markerOffsetMode==='percent' ? 1 : 0.1}
+											min={s.markerOffsetMode==='percent' ? -100 : -50}
+											max={s.markerOffsetMode==='percent' ? 100 : 50}
+											suffix={s.markerOffsetMode==='percent' ? '%' : 'mm'} />
 						<Num label="Marker size" value={s.markerSize} onChange={(v)=> set({ markerSize: mm1(v) })} step={0.1} min={1} max={30} suffix="mm" />
 
 						{/* Frets list */}
@@ -84,7 +100,12 @@ export default function Controls() {
 						{/* Doubles at 12 */}
 						<Check label="Double at 12th" checked={Boolean(s.doubleAt12)} onChange={(v)=> set({ doubleAt12: v })} />
 						{s.doubleAt12 ? (
-							<Num label="12th pair offset" value={s.double12Offset} onChange={(v)=> set({ double12Offset: mm1(v) })} step={0.1} min={0} max={30} suffix="mm" />
+							<Num label={`12th pair offset (${s.markerOffsetMode==='percent' ? '%' : 'mm'})`} value={s.double12Offset}
+								onChange={(v)=> set({ double12Offset: s.markerOffsetMode==='percent' ? Math.max(0, Math.min(100, v)) : mm1(v) })}
+								step={s.markerOffsetMode==='percent' ? 1 : 0.1}
+								min={0}
+								max={s.markerOffsetMode==='percent' ? 100 : 30}
+								suffix={s.markerOffsetMode==='percent' ? '%' : 'mm'} />
 						) : null}
 
 						{/* Ghost helpers */}

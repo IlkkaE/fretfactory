@@ -24,6 +24,7 @@ export const useAppState = create<AppState>()((set, get) => ({
   // ── merkit (uudet) ────────────────────────────────────────────
   markerFrets: SPEC.marker.defaultFrets.slice(),
   markerOffset: 0,
+  markerOffsetMode: 'mm',
   markerSize: SPEC.marker.defaultSizeMm,            // mm
   showGhostHelpers: false,
 

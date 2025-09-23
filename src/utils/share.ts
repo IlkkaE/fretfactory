@@ -5,7 +5,7 @@ export type ShareState = Partial<Pick<AppState,
   | 'mode' | 'units' | 'strings' | 'frets'
   | 'scaleTreble' | 'scaleBass' | 'anchorFret' | 'curvedExponent'
   | 'stringSpanNut' | 'stringSpanBridge' | 'overhang'
-  | 'markerOffset' | 'markerFrets'
+  | 'markerOffset' | 'markerFrets' | 'markerOffsetMode'
 >>
 
 export function pickShareableState(s: AppState): ShareState {
@@ -22,7 +22,8 @@ export function pickShareableState(s: AppState): ShareState {
     stringSpanNut: s.stringSpanNut,
     stringSpanBridge: s.stringSpanBridge,
     overhang: s.overhang,
-    markerOffset: s.markerOffset,
+  markerOffset: s.markerOffset,
+  markerOffsetMode: s.markerOffsetMode,
   markerFrets: s.markerFrets,
   }
 }

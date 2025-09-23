@@ -40,6 +40,7 @@ export function exportSVG(s: AppState) {
 
   const markRadius = MM('mm', Math.max(1, Math.min(30, s.markerSize ?? 6))) / 2
   const markOffset = (s.markerOffset ?? 0)
+  const markOffsetMode = s.markerOffsetMode ?? 'mm'
   const GHOST_ON = Boolean(s.showGhostHelpers)
 
   {
@@ -78,51 +79,101 @@ export function exportSVG(s: AppState) {
     lines.push(`<path ${VEC} d="${dNut}" stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
     lines.push(`<path ${VEC} d="${dBr}"  stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
 
-    const mid = (a:number,b:number)=> (a+b)/2
+  const mid = (a:number,b:number)=> (a+b)/2
     const addCross = (cx:number, cy:number) => {
       lines.push(`<line ${VEC} x1="${cx-markRadius+sx}" y1="${cy+sy}" x2="${cx+markRadius+sx}" y2="${cy+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
       lines.push(`<line ${VEC} x1="${cx+sx}" y1="${cy-markRadius+sy}" x2="${cx+sx}" y2="${cy+markRadius+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
     }
+    // Helper: walk along a polyline (ghost mid-curve) by arclength in mm.
+    const pointAlongPolyline = (pts: Array<{x:number,y:number}>, startIndex: number, delta: number) => {
+      if (!pts.length) return { x: 0, y: 0 }
+      let i = Math.max(0, Math.min(startIndex, pts.length - 1))
+      if (Math.abs(delta) < 1e-6) return { x: pts[i].x, y: pts[i].y }
+      const dir = delta >= 0 ? 1 : -1
+      let remain = Math.abs(delta)
+      while (remain > 1e-6) {
+        const j = i + dir
+        if (j < 0 || j >= pts.length) {
+          return { x: pts[i].x, y: pts[i].y }
+        }
+        const dx = pts[j].x - pts[i].x
+        const dy = pts[j].y - pts[i].y
+        const segLen = Math.hypot(dx, dy)
+        if (remain <= segLen) {
+          const t = segLen > 0 ? (remain / segLen) : 0
+          return { x: pts[i].x + dx * t, y: pts[i].y + dy * t }
+        } else {
+          remain -= segLen
+          i = j
+        }
+      }
+      return { x: pts[i].x, y: pts[i].y }
+    }
+
     const marks = (s.markerFrets && s.markerFrets.length ? s.markerFrets : MARK_FRETS)
     for (const f of marks) {
       // treat as gaps: f between frets f and f+1, allow f=0
       if (f < 0 || f >= s.frets) continue
       // if doubles enabled, skip single at 12th gap
       if (s.doubleAt12 && f === 12) continue
-      const a = rows[f], b = rows[f+1]
-      if (!a || !b) continue
+      // Map gap f -> curves A..B: (f==0) nut..row[0], else row[f-1]..row[f]
+      const aPts = (f === 0) ? nb.nut.pts : rows[f - 1]?.pts
+      const bPts = (f === 0) ? rows[0]?.pts : rows[f]?.pts
+      if (!aPts || !bPts) continue
+      // Build ghost mid-curve (in geometry coords), optionally draw helper path
+      const ghostPtsRaw = aPts.map((p, i) => ({ x: mid(p.x, bPts[i].x), y: mid(p.y, bPts[i].y) }))
       if (GHOST_ON) {
-        const ghostPts = a.pts.map((p, i) => ({ x: mid(p.x, b.pts[i].x) + sx, y: mid(p.y, b.pts[i].y) + sy }))
-        const dGhost = pchipToBezierPath(ghostPts)
+        const ghostPtsSvg = ghostPtsRaw.map(p => ({ x: p.x + sx, y: p.y + sy }))
+        const dGhost = pchipToBezierPath(ghostPtsSvg)
         lines.push(`<path ${VEC} d="${dGhost}" stroke="${C.GHOST}" stroke-width="${SW.GHOST}" fill="none"/>`)
       }
-      const midIdx = Math.floor(a.pts.length/2)
-      const cy = mid(a.pts[midIdx].y, b.pts[midIdx].y)
-      const gL = mid(a.x_left,  b.x_left)
-      const gR = mid(a.x_right, b.x_right)
-      const cx = (gL + gR)/2 + markOffset
-      addCross(cx, cy)
+      // Find center index (approx. mid string between edges), then slide along ghost by markOffset mm
+      const midIdx = Math.floor(ghostPtsRaw.length / 2)
+      // percent mode: map -100..+100 to absolute 0..1 along the ghost length
+      let p: {x:number;y:number}
+      if (markOffsetMode === 'percent') {
+        let total = 0
+        for (let i = 1; i < ghostPtsRaw.length; i++) total += Math.hypot(ghostPtsRaw[i].x - ghostPtsRaw[i-1].x, ghostPtsRaw[i].y - ghostPtsRaw[i-1].y)
+        const t = Math.max(0, Math.min(1, (markOffset + 100) / 200))
+        const dist = t * total
+        p = pointAlongPolyline(ghostPtsRaw, 0, dist)
+      } else {
+        p = pointAlongPolyline(ghostPtsRaw, midIdx, markOffset)
+      }
+      addCross(p.x, p.y)
     }
 
     // draw double at 12th gap if enabled
     if (s.doubleAt12) {
       const f = 12
-      const a = rows[f], b = rows[f+1]
-      if (a && b) {
+      // gap 12 -> rows[11]..rows[12]
+      const aPts = rows[f - 1]?.pts
+      const bPts = rows[f]?.pts
+      if (aPts && bPts) {
         const mid = (a:number,b:number)=> (a+b)/2
-        const midIdx = Math.floor(a.pts.length/2)
-        const cy = mid(a.pts[midIdx].y, b.pts[midIdx].y)
-        const gL = mid(a.x_left,  b.x_left)
-        const gR = mid(a.x_right, b.x_right)
-        const cxCenter = (gL + gR)/2
-        const d12 = Math.max(0, s.double12Offset ?? 0)
-        // two crosses at ±d12 from center
-        const addCross = (cx:number, cy:number) => {
-          lines.push(`<line ${VEC} x1="${cx-markRadius+sx}" y1="${cy+sy}" x2="${cx+markRadius+sx}" y2="${cy+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
-          lines.push(`<line ${VEC} x1="${cx+sx}" y1="${cy-markRadius+sy}" x2="${cx+sx}" y2="${cy+markRadius+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
+        const ghostPtsRaw = aPts.map((p, i) => ({ x: mid(p.x, bPts[i].x), y: mid(p.y, bPts[i].y) }))
+        const midIdx = Math.floor(ghostPtsRaw.length / 2)
+        let pL: {x:number;y:number}, pR: {x:number;y:number}
+        if (markOffsetMode === 'percent') {
+          let total = 0
+          for (let i = 1; i < ghostPtsRaw.length; i++) total += Math.hypot(ghostPtsRaw[i].x - ghostPtsRaw[i-1].x, ghostPtsRaw[i].y - ghostPtsRaw[i-1].y)
+          const tMain = Math.max(0, Math.min(1, (markOffset + 100) / 200))
+          const distMain = tMain * total
+          const distSep = Math.max(0, Math.min(total, ((s.double12Offset ?? 0) / 100) * total))
+          pL = pointAlongPolyline(ghostPtsRaw, 0, Math.max(0, distMain - distSep))
+          pR = pointAlongPolyline(ghostPtsRaw, 0, Math.min(total, distMain + distSep))
+        } else {
+          const d12 = Math.max(0, s.double12Offset ?? 0)
+          pL = pointAlongPolyline(ghostPtsRaw, midIdx, markOffset - d12)
+          pR = pointAlongPolyline(ghostPtsRaw, midIdx, markOffset + d12)
         }
-        addCross(cxCenter - d12 + markOffset, cy)
-        addCross(cxCenter + d12 + markOffset, cy)
+        // reuse outer addCross with geometry coords
+        const drawCross = (pt:{x:number,y:number}) => {
+          lines.push(`<line ${VEC} x1="${pt.x-markRadius+sx}" y1="${pt.y+sy}" x2="${pt.x+markRadius+sx}" y2="${pt.y+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
+          lines.push(`<line ${VEC} x1="${pt.x+sx}" y1="${pt.y-markRadius+sy}" x2="${pt.x+sx}" y2="${pt.y+markRadius+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
+        }
+        drawCross(pL)
+        drawCross(pR)
       }
     }
 
@@ -172,6 +223,10 @@ export async function exportPDFA4(s: AppState) {
     }
   }
   let W = 0, H = 0
+  // marker styling (mm, consistent with SVG logic)
+  const markRadius = Math.max(1, Math.min(30, s.markerSize ?? 6)) / 2
+  const markOffset = (s.markerOffset ?? 0)
+  const markOffsetMode = s.markerOffsetMode ?? 'mm'
 
   {
     const rows = computeCurvedFretsRaw(
@@ -190,7 +245,7 @@ export async function exportPDFA4(s: AppState) {
     H = (maxY - minY)
     const sx = -minX, sy = -minY
 
-    // edges
+  // edges
     segs.push({ x1: nb.nut.x_left+sx, y1: nb.nut.y_left+sy, x2: nb.bridge.x_left+sx, y2: nb.bridge.y_left+sy })
     segs.push({ x1: nb.nut.x_right+sx, y1: nb.nut.y_right+sy, x2: nb.bridge.x_right+sx, y2: nb.bridge.y_right+sy })
     // strings
@@ -215,6 +270,80 @@ export async function exportPDFA4(s: AppState) {
     }
     for (const c of pchipToBezierSegments(nb.bridge.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))) {
       addCubicAsLines(c.p0.x, c.p0.y, c.c1.x, c.c1.y, c.c2.x, c.c2.y, c.p1.x, c.p1.y)
+    }
+    // markers: along ghost mid-curve for selected gaps
+    const pointAlongPolyline = (pts: Array<{x:number;y:number}>, startIndex: number, delta: number) => {
+      if (!pts.length) return { x: 0, y: 0 }
+      let i = Math.max(0, Math.min(startIndex, pts.length - 1))
+      if (Math.abs(delta) < 1e-6) return { x: pts[i].x, y: pts[i].y }
+      const dir = delta >= 0 ? 1 : -1
+      let remain = Math.abs(delta)
+      while (remain > 1e-6) {
+        const j = i + dir
+        if (j < 0 || j >= pts.length) return { x: pts[i].x, y: pts[i].y }
+        const dx = pts[j].x - pts[i].x
+        const dy = pts[j].y - pts[i].y
+        const segLen = Math.hypot(dx, dy)
+        if (remain <= segLen) {
+          const t = segLen > 0 ? (remain / segLen) : 0
+          return { x: pts[i].x + dx * t, y: pts[i].y + dy * t }
+        }
+        remain -= segLen
+        i = j
+      }
+      return { x: pts[i].x, y: pts[i].y }
+    }
+    const mid = (a:number,b:number)=> (a+b)/2
+    const marks = (s.markerFrets && s.markerFrets.length ? s.markerFrets : MARK_FRETS)
+    for (const f of marks) {
+      if (f < 0 || f >= s.frets) continue
+      if (s.doubleAt12 && f === 12) continue
+      const aPts = (f === 0) ? nb.nut.pts : rows[f - 1]?.pts
+      const bPts = (f === 0) ? rows[0]?.pts : rows[f]?.pts
+      if (!aPts || !bPts) continue
+      const ghostPts = aPts.map((p, i) => ({ x: mid(p.x, bPts[i].x), y: mid(p.y, bPts[i].y) }))
+      const midIdx = Math.floor(ghostPts.length / 2)
+      let p: {x:number;y:number}
+      if (markOffsetMode === 'percent') {
+        let total = 0
+        for (let i = 1; i < ghostPts.length; i++) total += Math.hypot(ghostPts[i].x - ghostPts[i-1].x, ghostPts[i].y - ghostPts[i-1].y)
+        const t = Math.max(0, Math.min(1, (markOffset + 100) / 200))
+        const dist = t * total
+        p = pointAlongPolyline(ghostPts, 0, dist)
+      } else {
+        p = pointAlongPolyline(ghostPts, midIdx, markOffset)
+      }
+      // cross segments (apply sx, sy when pushing)
+      segs.push({ x1: p.x - markRadius + sx, y1: p.y + sy, x2: p.x + markRadius + sx, y2: p.y + sy })
+      segs.push({ x1: p.x + sx, y1: p.y - markRadius + sy, x2: p.x + sx, y2: p.y + markRadius + sy })
+    }
+    // 12th doubles
+    if (s.doubleAt12) {
+      const f = 12
+      const aPts = rows[f - 1]?.pts
+      const bPts = rows[f]?.pts
+      if (aPts && bPts) {
+        const ghostPts = aPts.map((p, i) => ({ x: mid(p.x, bPts[i].x), y: mid(p.y, bPts[i].y) }))
+        const midIdx = Math.floor(ghostPts.length / 2)
+        let pL: {x:number;y:number}, pR: {x:number;y:number}
+        if (markOffsetMode === 'percent') {
+          let total = 0
+          for (let i = 1; i < ghostPts.length; i++) total += Math.hypot(ghostPts[i].x - ghostPts[i-1].x, ghostPts[i].y - ghostPts[i-1].y)
+          const tMain = Math.max(0, Math.min(1, (markOffset + 100) / 200))
+          const distMain = tMain * total
+          const distSep = Math.max(0, Math.min(total, ((s.double12Offset ?? 0) / 100) * total))
+          pL = pointAlongPolyline(ghostPts, 0, Math.max(0, distMain - distSep))
+          pR = pointAlongPolyline(ghostPts, 0, Math.min(total, distMain + distSep))
+        } else {
+          const d12eff = Math.max(0, s.double12Offset ?? 0)
+          pL = pointAlongPolyline(ghostPts, midIdx, markOffset - d12eff)
+          pR = pointAlongPolyline(ghostPts, midIdx, markOffset + d12eff)
+        }
+        segs.push({ x1: pL.x - markRadius + sx, y1: pL.y + sy, x2: pL.x + markRadius + sx, y2: pL.y + sy })
+        segs.push({ x1: pL.x + sx, y1: pL.y - markRadius + sy, x2: pL.x + sx, y2: pL.y + markRadius + sy })
+        segs.push({ x1: pR.x - markRadius + sx, y1: pR.y + sy, x2: pR.x + markRadius + sx, y2: pR.y + sy })
+        segs.push({ x1: pR.x + sx, y1: pR.y - markRadius + sy, x2: pR.x + sx, y2: pR.y + markRadius + sy })
+      }
     }
     }
 

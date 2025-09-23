@@ -24,6 +24,7 @@ export type AppState = {
   // ── uutta: otelautamerkkien tila ──────────────────────────────
   markerFrets: number[]     // missä väleissä merkit
   markerOffset: number      // sivuttaissiirto (+ treble, − bass)
+  markerOffsetMode?: 'mm' | 'percent' // mm (absolute) or percent of gap-curve length
   markerSize?: number       // ristin halkaisija mm
   showGhostHelpers?: boolean // esikatsele apuviiva välin keskellä
 

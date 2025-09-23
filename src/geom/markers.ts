@@ -12,6 +12,7 @@ export function buildMarkers(s: AppState, built: BuildResult): DrawEl[] {
   // Interpret entries as gaps: n == gap between frets n and n+1. Allow 0 (nut–1 gap).
   const fretsBase = s.markerFrets?.length ? s.markerFrets : [2,4,6,8,11,14,16,18,20]
   const offset = s.markerOffset ?? 0
+  const offsetMode = s.markerOffsetMode ?? 'mm'
   const useDouble12 = Boolean(s.doubleAt12)
   const d12 = Math.max(0, s.double12Offset ?? 0)
   // If double-12 is on, avoid drawing single marker at the 12th gap (12..13)
@@ -25,7 +26,7 @@ export function buildMarkers(s: AppState, built: BuildResult): DrawEl[] {
 
   // ---------- CURVED: ghost = KÄYRÄ välin keskellä ----------
   if (s.mode === 'curved' && built.helpers.curved) {
-    const { rows, nb, yAtX } = built.helpers.curved
+  const { rows, nb } = built.helpers.curved
 
     // reuna-funktiot x_left(y), x_right(y) (lineaarinen interp reunoilla)
     const yNutL = nb.nut.pts[0].y
@@ -54,19 +55,11 @@ export function buildMarkers(s: AppState, built: BuildResult): DrawEl[] {
       const rB = byN.get(n + 1) // fret n+1
       if (!rA || !rB) continue
 
-      // X-alue jolla molemmille on y(x)
-      const xStart = Math.max(rA.x_left,  rB.x_left)
-      const xEnd   = Math.min(rA.x_right, rB.x_right)
-      if (!(xEnd > xStart)) continue
-
-      // Diskretisoidaan ghost-käyrä pisteiksi ja piirretään vihreä polylinja
-      const pts: {x:number;y:number}[] = []
-      const SAMPLES = 64
-      for (let i = 0; i <= SAMPLES; i++) {
-        const x = xStart + (xEnd - xStart) * (i / SAMPLES)
-        const yG = 0.5 * (yAtX(rA.pts, x) + yAtX(rB.pts, x))
-        pts.push({ x, y: yG })
-      }
+      // Rakennetaan ghost-käyrä pistepareista: keskipiste jokaiselle kielipisteelle (sis. reunat)
+      const pts: {x:number;y:number}[] = rA.pts.map((p, i) => ({
+        x: 0.5 * (p.x + rB.pts[i].x),
+        y: 0.5 * (p.y + rB.pts[i].y)
+      }))
       if (showGhost) {
         for (let i = 1; i < pts.length; i++) {
           const p0 = pts[i-1], p1 = pts[i]
@@ -74,18 +67,54 @@ export function buildMarkers(s: AppState, built: BuildResult): DrawEl[] {
         }
       }
 
-      // Etsi ristin kohta: x*, jossa ghost x on lähimpänä leveyskeskilinjaa x_center(y_g(x))
-      let best = { x: pts[0].x, y: pts[0].y, err: Math.abs(pts[0].x - xCenterAtY(pts[0].y)) }
-      for (const p of pts) {
+      // Etsi keskikohta leveyskeskilinjan perusteella
+      let bestIdx = 0
+      let bestErr = Math.abs(pts[0].x - xCenterAtY(pts[0].y))
+      for (let i = 1; i < pts.length; i++) {
+        const p = pts[i]
         const err = Math.abs(p.x - xCenterAtY(p.y))
-        if (err < best.err) best = { x: p.x, y: p.y, err }
+        if (err < bestErr) { bestErr = err; bestIdx = i }
       }
-  const xCross = best.x + offset
-      const yCross = best.y
+
+      // Siirrä along-curve arclengthilla (mm) ghost-käyrää pitkin
+      const pointAlongPolyline = (arr: {x:number;y:number}[], startIndex: number, delta: number) => {
+        if (!arr.length) return { x: 0, y: 0 }
+        let i = Math.max(0, Math.min(startIndex, arr.length - 1))
+        if (Math.abs(delta) < 1e-6) return { x: arr[i].x, y: arr[i].y }
+        const dir = delta >= 0 ? 1 : -1
+        let remain = Math.abs(delta)
+        while (remain > 1e-6) {
+          const j = i + dir
+          if (j < 0 || j >= arr.length) return { x: arr[i].x, y: arr[i].y }
+          const dx = arr[j].x - arr[i].x
+          const dy = arr[j].y - arr[i].y
+          const segLen = Math.hypot(dx, dy)
+          if (remain <= segLen) {
+            const t = segLen > 0 ? (remain / segLen) : 0
+            return { x: arr[i].x + dx * t, y: arr[i].y + dy * t }
+          }
+          remain -= segLen
+          i = j
+        }
+        return { x: arr[i].x, y: arr[i].y }
+      }
+
+      // Convert to absolute position along the ghost curve when in percent mode
+      let pCross: { x:number; y:number }
+      if (offsetMode === 'percent') {
+        let total = 0
+        for (let i = 1; i < pts.length; i++) total += Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y)
+        const t = Math.max(0, Math.min(1, (offset + 100) / 200)) // -100 -> 0, 0 -> 0.5, +100 -> 1
+        const dist = t * total
+        pCross = pointAlongPolyline(pts, 0, dist)
+      } else {
+        // mm mode: offset from width-center point
+        pCross = pointAlongPolyline(pts, bestIdx, offset)
+      }
 
       // risti
-  out.push({ kind:'line', x1:xCross - r, y1:yCross, x2:xCross + r, y2:yCross, color:COLORS.marker, w:STROKES.FRET })
-  out.push({ kind:'line', x1:xCross,     y1:yCross - r, x2:xCross,     y2:yCross + r, color:COLORS.marker, w:STROKES.FRET })
+      out.push({ kind:'line', x1:pCross.x - r, y1:pCross.y, x2:pCross.x + r, y2:pCross.y, color:COLORS.marker, w:STROKES.FRET })
+      out.push({ kind:'line', x1:pCross.x,     y1:pCross.y - r, x2:pCross.x,     y2:pCross.y + r, color:COLORS.marker, w:STROKES.FRET })
     }
 
   // 12th gap doubles (between frets 12 and 13) in curved mode: use independent offset; two markers move opposite directions ±d12
@@ -97,34 +126,62 @@ export function buildMarkers(s: AppState, built: BuildResult): DrawEl[] {
         const xStart = Math.max(rA.x_left,  rB.x_left)
         const xEnd   = Math.min(rA.x_right, rB.x_right)
         if (xEnd > xStart) {
-          const SAMPLES = 64
-          let bestX = xStart
-          let bestY = 0
-          let bestErr = Number.POSITIVE_INFINITY
-          for (let i = 0; i <= SAMPLES; i++) {
-            const x = xStart + (xEnd - xStart) * (i / SAMPLES)
-            const yG = 0.5 * (yAtX(rA.pts, x) + yAtX(rB.pts, x))
-            const err = Math.abs(x - xCenterAtY(yG))
-            if (err < bestErr) { bestErr = err; bestX = x; bestY = yG }
+          const pts: {x:number;y:number}[] = rA.pts.map((p, i) => ({
+            x: 0.5 * (p.x + rB.pts[i].x),
+            y: 0.5 * (p.y + rB.pts[i].y)
+          }))
+          // find center index nearest width-center
+          let bestIdx = 0
+          let bestErr = Math.abs(pts[0].x - xCenterAtY(pts[0].y))
+          for (let i = 1; i < pts.length; i++) {
+            const p = pts[i]
+            const err = Math.abs(p.x - xCenterAtY(p.y))
+            if (err < bestErr) { bestErr = err; bestIdx = i }
           }
-          const xCenter = bestX
-          const yCenter = bestY
-          const xLft = xCenter - d12
-          const xRgt = xCenter + d12
-          // left cross
-          out.push({ kind:'line', x1:xLft - r, y1:yCenter, x2:xLft + r, y2:yCenter, color:COLORS.marker, w:STROKES.FRET })
-          out.push({ kind:'line', x1:xLft,     y1:yCenter - r, x2:xLft,     y2:yCenter + r, color:COLORS.marker, w:STROKES.FRET })
-          // right cross
-          out.push({ kind:'line', x1:xRgt - r, y1:yCenter, x2:xRgt + r, y2:yCenter, color:COLORS.marker, w:STROKES.FRET })
-          out.push({ kind:'line', x1:xRgt,     y1:yCenter - r, x2:xRgt,     y2:yCenter + r, color:COLORS.marker, w:STROKES.FRET })
-          if (showGhost) {
-            // draw ghost across the gap
-            const pts: {x:number;y:number}[] = []
-            for (let i = 0; i <= SAMPLES; i++) {
-              const x = xStart + (xEnd - xStart) * (i / SAMPLES)
-              const yG = 0.5 * (yAtX(rA.pts, x) + yAtX(rB.pts, x))
-              pts.push({ x, y: yG })
+          const pointAlongPolyline = (arr: {x:number;y:number}[], startIndex: number, delta: number) => {
+            if (!arr.length) return { x: 0, y: 0 }
+            let i = Math.max(0, Math.min(startIndex, arr.length - 1))
+            if (Math.abs(delta) < 1e-6) return { x: arr[i].x, y: arr[i].y }
+            const dir = delta >= 0 ? 1 : -1
+            let remain = Math.abs(delta)
+            while (remain > 1e-6) {
+              const j = i + dir
+              if (j < 0 || j >= arr.length) return { x: arr[i].x, y: arr[i].y }
+              const dx = arr[j].x - arr[i].x
+              const dy = arr[j].y - arr[i].y
+              const segLen = Math.hypot(dx, dy)
+              if (remain <= segLen) {
+                const t = segLen > 0 ? (remain / segLen) : 0
+                return { x: arr[i].x + dx * t, y: arr[i].y + dy * t }
+              }
+              remain -= segLen
+              i = j
             }
+            return { x: arr[i].x, y: arr[i].y }
+          }
+
+          // Two markers along the curve at absolute positions when in percent mode
+          let pL: {x:number;y:number}, pR: {x:number;y:number}
+          if (offsetMode === 'percent') {
+            let total = 0
+            for (let i = 1; i < pts.length; i++) total += Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y)
+            const tMain = Math.max(0, Math.min(1, (offset + 100) / 200))
+            const distMain = tMain * total
+            const distSep = Math.max(0, Math.min(total, (d12 / 100) * total))
+            pL = pointAlongPolyline(pts, 0, Math.max(0, distMain - distSep))
+            pR = pointAlongPolyline(pts, 0, Math.min(total, distMain + distSep))
+          } else {
+            pL = pointAlongPolyline(pts, bestIdx, offset - d12)
+            pR = pointAlongPolyline(pts, bestIdx, offset + d12)
+          }
+          // left cross
+          out.push({ kind:'line', x1:pL.x - r, y1:pL.y, x2:pL.x + r, y2:pL.y, color:COLORS.marker, w:STROKES.FRET })
+          out.push({ kind:'line', x1:pL.x,     y1:pL.y - r, x2:pL.x,     y2:pL.y + r, color:COLORS.marker, w:STROKES.FRET })
+          // right cross
+          out.push({ kind:'line', x1:pR.x - r, y1:pR.y, x2:pR.x + r, y2:pR.y, color:COLORS.marker, w:STROKES.FRET })
+          out.push({ kind:'line', x1:pR.x,     y1:pR.y - r, x2:pR.x,     y2:pR.y + r, color:COLORS.marker, w:STROKES.FRET })
+          if (showGhost) {
+            // draw ghost across the gap (already sampled in pts)
             for (let i = 1; i < pts.length; i++) {
               const p0 = pts[i-1], p1 = pts[i]
               out.push({ kind:'line', x1:p0.x, y1:p0.y, x2:p1.x, y2:p1.y, color:COLORS.ghost, w:STROKES.FRET })
