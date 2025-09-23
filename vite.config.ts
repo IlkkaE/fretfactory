@@ -1,10 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Export a factory to access env via Vite's loadEnv; default base is '/'
+// Detect GitHub Pages (project pages) and set base to `/<repo>/` automatically in CI.
+// Priority: VITE_BASE env > GitHub Actions repo-based base > '/'
 export default defineConfig(() => {
-  // At config time, import.meta.env is available in Vite; fallback to '/'
-  const base = (import.meta as any).env?.VITE_BASE || '/'
+  // Access env via globalThis to avoid requiring @types/node for process
+  const P = (globalThis as any).process as any | undefined
+  const envBase = P?.env?.VITE_BASE as string | undefined
+  const inCI = (P?.env?.GITHUB_ACTIONS as string | undefined) === 'true'
+  const repo = (P?.env?.GITHUB_REPOSITORY as string | undefined)?.split('/')?.[1]
+  const base = envBase ?? (inCI && repo ? `/${repo}/` : '/')
   return {
     plugins: [react()],
     base,
