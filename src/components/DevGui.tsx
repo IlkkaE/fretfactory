@@ -89,10 +89,8 @@ export default function DevGui() {
         fDims.add(s, 'stringSpanBridge', 0, 120, 0.01).onChange((v: number) => set({ stringSpanBridge: v }))
         fDims.add(s, 'overhang', 0, 20, 0.01).onChange((v: number) => set({ overhang: v }))
 
-        const fMarkers = gui.addFolder('Markers')
-        fMarkers.add(s, 'markerOffset', -20, 20, 0.01).onChange((v: number) => set({ markerOffset: v }))
-        fMarkers.add(s, 'doubleAt12').onChange((v: boolean) => set({ doubleAt12: v }))
-        fMarkers.add(s, 'double12Offset', 0, 20, 0.01).onChange((v: number) => set({ double12Offset: v }))
+  const fMarkers = gui.addFolder('Markers')
+  // Legacy controls removed: markerOffset, doubleAt12, double12Offset
 
   // Export section removed; export buttons are shown under the control panel in ExportGrid
 

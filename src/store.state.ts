@@ -24,17 +24,17 @@ export const useAppState = create<AppState>()((set, get) => ({
   // ── merkit (uudet) ────────────────────────────────────────────
   markerFrets: SPEC.marker.defaultFrets.slice(),
   markerOffset: 0,
-  markerOffsetMode: 'mm',
   markerSize: SPEC.marker.defaultSizeMm,            // mm
   showGhostHelpers: false,
 
-  // 12th-fret doubles (off by default)
-  doubleAt12: false,
-  double12Offset: 5.08, // mm (0.2 in)
+  // 12th-fret doubles removed
 
   // 3D compound radius (inches)
   radiusNutIn: 12,
   radiusBridgeIn: 16,
+
+  // Red guide line position (percentage across width)
+  guidePosPct: 50,
 
   selectedPresetId: undefined,
 

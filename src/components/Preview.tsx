@@ -26,7 +26,7 @@ export default function Preview() {
   s.mode, s.scaleTreble, s.scaleBass, s.anchorFret, s.curvedExponent,
   s.strings, s.frets, s.stringSpanNut, s.stringSpanBridge, s.overhang, s.units,
   s.radiusNutIn, s.radiusBridgeIn,
-  s.markerOffset, s.markerFrets, s.doubleAt12, s.double12Offset
+  s.markerFrets, s.markerSize, s.showGhostHelpers, s.guidePosPct
   ])
 
   const markerEls = useMemo(() => {
@@ -218,6 +218,8 @@ export default function Preview() {
               }
               return null
             })}
+
+            {/* Red guide line intentionally hidden (logic remains in markers.ts for intersections) */}
             {/* All preview text removed intentionally */}
           </g>
         </g>

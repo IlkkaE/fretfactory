@@ -88,12 +88,8 @@ export default function Exports({ inline = false }:{ inline?: boolean }) {
     }
     download(`${baseName}_measurements.csv`, lines.join('\n'), 'text/csv')
   }, [baseName, canCurved, measurementRows, s.strings])
-
   const handleSVG = React.useCallback(() => {
     if (!canCurved) return
-
-  const markRadius = MM('mm', Math.max(1, Math.min(30, s.markerSize ?? 6))) / 2
-    const markOffset = (s.markerOffset ?? 0)
     const rows = computeCurvedFretsRaw(
       s.strings, s.frets, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12,
       s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1
@@ -102,16 +98,11 @@ export default function Exports({ inline = false }:{ inline?: boolean }) {
       s.strings, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12,
       s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1
     )
-
     let minX = +Infinity, maxX = -Infinity, minY = +Infinity, maxY = -Infinity
-    const eat = (p:{x:number,y:number}) => {
-      if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x
-      if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y
-    }
+    const eat = (p:{x:number;y:number}) => { if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x; if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y }
     rows.forEach(r => r.pts.forEach(eat)); nb.nut.pts.forEach(eat); nb.bridge.pts.forEach(eat)
     const W = (maxX - minX) + 2 * MARGIN, H = (maxY - minY) + 2 * MARGIN
     const sx = -minX + MARGIN, sy = -minY + MARGIN
-
     const lines: string[] = []
     // edges
     lines.push(`<line ${VEC} x1="${nb.nut.x_left+sx}" y1="${nb.nut.y_left+sy}" x2="${nb.bridge.x_left+sx}" y2="${nb.bridge.y_left+sy}" stroke="${C.EDGE}" stroke-width="${SW.EDGE}"/>`)
@@ -130,64 +121,17 @@ export default function Exports({ inline = false }:{ inline?: boolean }) {
         lines.push(`<path ${VEC} d="${d}" stroke="${C.FRET}" stroke-width="${SW.FRET}" fill="none"/>`)
       }
     }
-    // nut and bridge curves
+    // nut / bridge
     const dNut = pchipToBezierPath(nb.nut.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))
     const dBr  = pchipToBezierPath(nb.bridge.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))
     lines.push(`<path ${VEC} d="${dNut}" stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
     lines.push(`<path ${VEC} d="${dBr}"  stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
 
-  // ghost + crosses
-  const mid = (a:number,b:number)=> (a+b)/2
-    const addCross = (cx:number, cy:number) => {
-      lines.push(`<line ${VEC} x1="${cx-markRadius+sx}" y1="${cy+sy}" x2="${cx+markRadius+sx}" y2="${cy+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
-      lines.push(`<line ${VEC} x1="${cx+sx}" y1="${cy-markRadius+sy}" x2="${cx+sx}" y2="${cy+markRadius+sy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
-    }
-    const marks = (s.markerFrets && s.markerFrets.length ? s.markerFrets : MARK_FRETS)
-    for (const f of marks) {
-      // treat as gaps: f between frets f and f+1; allow f=0
-      if (f < 0 || f >= s.frets) continue
-      // skip single cross if doubles are enabled at 12th gap
-      if (s.doubleAt12 && f === 12) continue
-      const a = rows[f], b = rows[f+1]
-      if (!a || !b) continue
-      if (GHOST_ON) {
-        const ghostPts = a.pts.map((p, i) => ({ x: mid(p.x, b.pts[i].x) + sx, y: mid(p.y, b.pts[i].y) + sy }))
-        const dGhost = pchipToBezierPath(ghostPts)
-        lines.push(`<path ${VEC} d="${dGhost}" stroke="${C.GHOST}" stroke-width="${SW.GHOST}" fill="none"/>`)
-      }
-      const midIdx = Math.floor(a.pts.length/2)
-      const cy = mid(a.pts[midIdx].y, b.pts[midIdx].y)
-      const gL = mid(a.x_left,  b.x_left)
-      const gR = mid(a.x_right, b.x_right)
-      const cx = (gL + gR)/2 + markOffset
-      addCross(cx, cy)
-    }
+    // (Markers intentionally omitted here; centralized logic now lives in exporters.ts)
 
-    // draw double at 12th gap if enabled
-    if (s.doubleAt12) {
-      const f = 12
-      const a = rows[f], b = rows[f+1]
-      if (a && b) {
-        const mid = (a:number,b:number)=> (a+b)/2
-        const midIdx = Math.floor(a.pts.length/2)
-        const cy = mid(a.pts[midIdx].y, b.pts[midIdx].y)
-        const gL = mid(a.x_left,  b.x_left)
-        const gR = mid(a.x_right, b.x_right)
-        const cxCenter = (gL + gR)/2
-        const d12 = Math.max(0, s.double12Offset ?? 0)
-        addCross(cxCenter - d12 + markOffset, cy)
-        addCross(cxCenter + d12 + markOffset, cy)
-      }
-    }
-
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${W}${unitAttr}" height="${H}${unitAttr}" viewBox="0 0 ${W} ${H}">
-  <g fill="none">
-    ${lines.join('\n    ')}
-  </g>
-</svg>`
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}${unitAttr}" height="${H}${unitAttr}" viewBox="0 0 ${W} ${H}">\n  <g fill="none">\n    ${lines.join('\n    ')}\n  </g>\n</svg>`
     download(`${baseName}.svg`, svg, 'image/svg+xml')
-  }, [baseName, canCurved, s, unitAttr, GHOST_ON])
+  }, [baseName, canCurved, s, unitAttr, MARGIN, C, SW, VEC])
 
   const handleCSV = React.useCallback(() => {
     const rows = computeCurvedFretsRaw(s.strings, s.frets, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12, s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1)

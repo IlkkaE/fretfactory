@@ -24,17 +24,17 @@ export type AppState = {
   // ── uutta: otelautamerkkien tila ──────────────────────────────
   markerFrets: number[]     // missä väleissä merkit
   markerOffset: number      // sivuttaissiirto (+ treble, − bass)
-  markerOffsetMode?: 'mm' | 'percent' // mm (absolute) or percent of gap-curve length
   markerSize?: number       // ristin halkaisija mm
   showGhostHelpers?: boolean // esikatsele apuviiva välin keskellä
 
-  // 12th-fret doubles option
-  doubleAt12?: boolean       // draw two centered markers at the 12th position; unaffected by markerOffset
-  double12Offset?: number    // half-separation from center for the 12th pair, in current UI units
+  // 12th-fret doubles removed
 
   // 3D: compound radius in inches (nut and bridge), independent of UI units
   radiusNutIn?: number
   radiusBridgeIn?: number
+
+  // Preview guide line position (0 = bass edge, 100 = treble edge)
+  guidePosPct?: number
 
   // presetit
   selectedPresetId?: string
