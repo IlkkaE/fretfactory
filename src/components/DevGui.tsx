@@ -90,7 +90,7 @@ export default function DevGui() {
         fDims.add(s, 'overhang', 0, 20, 0.01).onChange((v: number) => set({ overhang: v }))
 
   const fMarkers = gui.addFolder('Markers')
-  // Legacy controls removed: markerOffset, doubleAt12, double12Offset
+  // Legacy controls removed: doubleAt12, double12Offset (markerOffset fully removed)
 
   // Export section removed; export buttons are shown under the control panel in ExportGrid
 

@@ -39,7 +39,6 @@ export function exportSVG(s: AppState) {
   const VEC = VECTOR_EFFECT
 
   const markRadius = MM('mm', Math.max(1, Math.min(30, s.markerSize ?? 6))) / 2
-  const markOffset = (s.markerOffset ?? 0)
   const GHOST_ON = Boolean(s.showGhostHelpers)
 
   {

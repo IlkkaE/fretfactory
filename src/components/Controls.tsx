@@ -72,7 +72,7 @@ export default function Controls() {
 
 										<Num label="Marker size" value={s.markerSize} onChange={(v)=> set({ markerSize: mm1(v) })} step={0.1} min={1} max={30} suffix="mm" />
 										{/* Guide line driven marker position */}
-										<Num label="Fretboard marker offset" value={s.guidePosPct} onChange={(v)=> set({ guidePosPct: Math.max(0, Math.min(100, Math.round(v))) })} step={1} min={0} max={100} />
+										<Num label="Guide position %" value={s.guidePosPct} onChange={(v)=> set({ guidePosPct: Math.max(0, Math.min(100, Math.round(v))) })} step={1} min={0} max={100} />
 
 						{/* Frets list */}
 						<FretsEditor
