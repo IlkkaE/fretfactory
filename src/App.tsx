@@ -7,6 +7,7 @@ import ExportGrid from './components/ExportGrid'
 import PresetMenu from './components/PresetMenu'
 import Controls from './components/Controls'
 import AdsenseBlock from './components/Adsense'
+import BuyMeCoffee from './components/BuyMeCoffee'
 
 export default function App() {
   const isMobile = useIsMobile(768)
@@ -34,6 +35,10 @@ export default function App() {
               <AdsenseBlock />
             </div>
           ) : null}
+          {/* Buy Me a Coffee */}
+          <div className="mt-8">
+            <BuyMeCoffee />
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,17 @@
+import React from 'react'
+
+export default function BuyMeCoffee() {
+  return (
+    <div className="card glass" style={{ textAlign: 'center' }}>
+      <a
+        href="https://buymeacoffee.com/ilkkaengstt"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn btn-block"
+        aria-label="Buy me a coffee"
+      >
+        ☕ Buy Me a Coffee
+      </a>
+    </div>
+  )
+}
