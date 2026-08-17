@@ -19,7 +19,7 @@ html, body, #root{ height:100%; }
 body{ background:#e6f4ff; margin:0; }
 
 /* Layout utilities */
-.app-grid{ position:relative; z-index:1; display:grid; grid-auto-rows:min-content; align-items:start; width:100%; margin:0; }
+.app-grid{ position:relative; z-index:1; display:grid; grid-auto-rows:min-content; align-items:start; box-sizing:border-box; width:100%; margin:0; }
 .app-root{ min-height:100vh; display:block; position:relative; }
 .cols-1{ grid-template-columns:1fr; }
 .cols-2{ grid-template-columns:auto 1fr; }
@@ -103,8 +103,26 @@ body{ background:#e6f4ff; margin:0; }
 /* Background helpers */
 .bg-fixed{ position:fixed; inset:0; z-index:-1; pointer-events:none; }
 .abs-fill{ position:absolute; inset:0; display:block; }
-.bg-rock{ background-image:url('/img/rock.webp'); background-size:cover; background-position:center; filter:brightness(1.12); }
-@media (max-width:768px){ .bg-rock{ background-image:url('/img/rock-mobile.webp'); } }
+.bg-rock{ background-image:url('/img/rock-autumn.webp'); background-size:cover; background-position:center; filter:brightness(1.04); }
+@media (max-width:768px){ .bg-rock{ background-image:url('/img/rock-autumn-mobile.webp'); } }
+
+/* Ownership credit */
+.owner-credit{
+  grid-column:1 / -1;
+  justify-self:end;
+  margin:0 10px 8px;
+  padding:4px 8px;
+  border:1px solid var(--card-border);
+  border-radius:999px;
+  background:rgba(8,12,22,.58);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:11px;
+  line-height:1;
+  letter-spacing:.02em;
+  -webkit-backdrop-filter:blur(2px);
+  backdrop-filter:blur(2px);
+}
 
 /* Ads */
 .ad-card{ background: var(--panel); border:1px solid var(--card-border); border-radius:12px; padding:8px; }

@@ -20,6 +20,9 @@ export default function App() {
   {/* DevGui removed; using new Controls panel */}
       {/* Two-column desktop: left = preset+controls+export, right = preview */}
       <div className={`app-grid ${isMobile ? 'cols-1 pad-8' : 'cols-2 pad-16'}` }>
+        <div className="owner-credit" aria-label="Sivuston omistaja">
+          @ilkka
+        </div>
         {/* LEFT COLUMN */}
   <div className="grid-1">
           <UnitSelector />
