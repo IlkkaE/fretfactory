@@ -1,8 +1,11 @@
 // src/geom/units.ts
 // Yksikkömuunnokset: inch ↔ mm
 
-export type Units = 'mm' | 'inch'
-export const MM_PER_INCH = 25.4
+import type { Units } from '../types'
+import { MM_PER_INCH } from '../utils/units'
+
+export type { Units }
+export { MM_PER_INCH }
 
 export function convert(value: number, from: Units, to: Units): number {
   if (!Number.isFinite(value)) return value

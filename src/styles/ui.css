@@ -15,6 +15,9 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+html, body, #root{ height:100%; }
+body{ background:#e6f4ff; margin:0; }
+
 /* Layout utilities */
 .app-grid{ position:relative; z-index:1; display:grid; grid-auto-rows:min-content; align-items:start; width:100%; margin:0; }
 .app-root{ min-height:100vh; display:block; position:relative; }
@@ -35,6 +38,7 @@
 .align-center{ display:flex; align-items:center; gap:8px; }
 .mb-6{ margin-bottom:6px; }
 .mb-8{ margin-bottom:8px; }
+.mb-0{ margin-bottom:0; }
 .mt-8{ margin-top:8px; }
 .mr-4{ margin-right:4px; }
 .ox-auto{ overflow-x:auto; }
@@ -53,6 +57,7 @@
 .bold{ font-weight:600; }
 
 .section-title{ font-weight:600; color: var(--text); font-size:12px; opacity:.9; }
+.preset-details{ display:grid; gap:3px; margin-top:8px; color:var(--muted); font-size:11px; line-height:1.35; }
 .hr-thin{ height:1px; background: var(--border); opacity:.3; margin:4px 0; }
 
 /* Form controls */
@@ -71,7 +76,7 @@
 .bar-left{ display:flex; align-items:center; gap:8px; }
 .bar-end{ display:flex; justify-content:flex-end; gap:8px; }
 .grid-gap6{ display:grid; grid-template-columns:1fr; gap:6px; margin-bottom:6px; }
-.label-dark{ color:#000; font-size:12px; }
+.label-dark{ color:#fff; font-size:12px; }
 .svg-full{ width:100%; height:100%; display:block; }
 
 /* Cards */
@@ -98,7 +103,8 @@
 /* Background helpers */
 .bg-fixed{ position:fixed; inset:0; z-index:-1; pointer-events:none; }
 .abs-fill{ position:absolute; inset:0; display:block; }
-.bg-rock{ background-image:url('/img/rock.png'); background-size:cover; background-position:center; filter:brightness(1.12); }
+.bg-rock{ background-image:url('/img/rock.webp'); background-size:cover; background-position:center; filter:brightness(1.12); }
+@media (max-width:768px){ .bg-rock{ background-image:url('/img/rock-mobile.webp'); } }
 
 /* Ads */
 .ad-card{ background: var(--panel); border:1px solid var(--card-border); border-radius:12px; padding:8px; }

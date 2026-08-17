@@ -1,11 +1,20 @@
 import type { AppState } from '../types'
+import { sanitizeStatePatch } from './stateValidation'
+
+const MAX_HASH_LENGTH = 12_000
+const SHAREABLE_KEYS = new Set([
+  'mode', 'units', 'strings', 'frets',
+  'scaleTreble', 'scaleBass', 'anchorFret', 'curvedExponent',
+  'stringSpanNut', 'stringSpanBridge', 'overhang',
+  'markerFrets', 'markerSize', 'radiusNut', 'radiusBridge',
+])
 
 // Keys kept small if we ever switch to query params; for now JSON in hash
 export type ShareState = Partial<Pick<AppState,
   | 'mode' | 'units' | 'strings' | 'frets'
   | 'scaleTreble' | 'scaleBass' | 'anchorFret' | 'curvedExponent'
   | 'stringSpanNut' | 'stringSpanBridge' | 'overhang'
-  | 'markerFrets'
+  | 'markerFrets' | 'markerSize' | 'radiusNut' | 'radiusBridge'
 >>
 
 export function pickShareableState(s: AppState): ShareState {
@@ -23,6 +32,9 @@ export function pickShareableState(s: AppState): ShareState {
     stringSpanBridge: s.stringSpanBridge,
     overhang: s.overhang,
     markerFrets: s.markerFrets,
+    markerSize: s.markerSize,
+    radiusNut: s.radiusNut,
+    radiusBridge: s.radiusBridge,
   }
 }
 
@@ -34,18 +46,17 @@ export function stateToHash(s: AppState): string {
 }
 
 export function parseHash(hash: string): ShareState | null {
-  if (!hash) return null
+  if (!hash || hash.length > MAX_HASH_LENGTH) return null
   const idx = hash.indexOf('#state=')
   if (idx !== 0) return null
   try {
     const enc = hash.slice('#state='.length)
     const json = decodeURIComponent(enc)
-    const obj = JSON.parse(json)
-    if (obj && typeof obj === 'object') {
-      // Sanitize mode: only curved is supported
-      if (obj.mode !== 'curved') obj.mode = 'curved'
-      return obj as ShareState
-    }
+    const safe = sanitizeStatePatch(JSON.parse(json))
+    const shared = Object.fromEntries(
+      Object.entries(safe).filter(([key]) => SHAREABLE_KEYS.has(key))
+    ) as ShareState
+    return Object.keys(shared).length ? shared : null
   } catch { /* ignore */ }
   return null
 }

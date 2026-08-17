@@ -3,6 +3,8 @@ import '../styles/ui.css'
 import { useAppState } from '../store.state'
 import { THEME } from '../utils/theme'
 import { SPEC } from '../spec'
+import { fromDisplayLength, toDisplayLength, unitLabel } from '../utils/units'
+import { STATE_LIMITS } from '../utils/stateValidation'
 
 function Num({ label, value, onChange, step=0.1, min, max, suffix }:{
 	label: string
@@ -20,7 +22,13 @@ function Num({ label, value, onChange, step=0.1, min, max, suffix }:{
 			<span>{label}</span>
 				<div className="flex-row">
 						<input type="number" inputMode="decimal" value={local}
-					onChange={(e)=>{ setLocal(e.target.value); const raw = e.target.value.replace(',', '.'); const v = parseFloat(raw); if (!Number.isNaN(v)) onChange(v) }}
+						onChange={(e)=>{
+							setLocal(e.target.value)
+							const raw = e.target.value.replace(',', '.')
+							const value = Number(raw)
+							if (!Number.isFinite(value)) return
+							onChange(Math.min(max ?? Infinity, Math.max(min ?? -Infinity, value)))
+						}}
 					onInvalid={(e)=>{ e.currentTarget.setCustomValidity('Enter a valid value.'); }}
 					onInput={(e)=>{ e.currentTarget.setCustomValidity(''); }}
 					step={step} min={min} max={max}
@@ -35,8 +43,12 @@ export default function Controls() {
 	const s = useAppState()
 	const set = useAppState(state => state.set)
 
-	const mm1 = (v:number) => Math.round(v*10)/10
-	const setNum = (k: keyof typeof s) => (v:number) => set({ [k]: v } as any)
+	const lengthStep = s.units === 'inch' ? 0.001 : 0.1
+	const lengthSuffix = unitLabel(s.units)
+	const displayLength = (valueMm: number | undefined) => toDisplayLength(valueMm, s.units)
+	const displayLimit = (valueMm: number) => toDisplayLength(valueMm, s.units)
+	const setLength = (key: keyof typeof s) => (value: number) =>
+		set({ [key]: fromDisplayLength(value, s.units) } as any)
 
 	// Helpers for marker frets parse/format
 		// Display as 1-based gap numbers for the user (1 = nut–1, 2 = 1–2, 3 = 2–3, ...)
@@ -56,21 +68,21 @@ export default function Controls() {
 	return (
 			<div className="card card-controls">
 				<div className="grid-1">
-				<Num label="Strings" value={s.strings} onChange={(v)=> set({ strings: Math.max(1, Math.round(v)) })} step={1} />
-				<Num label="Frets" value={s.frets} onChange={(v)=> set({ frets: Math.max(1, Math.round(v)) })} step={1} />
-				<Num label="Scale Treble" value={s.scaleTreble} onChange={(v)=> set({ scaleTreble: mm1(v) })} step={0.1} min={100} max={1000} suffix="mm" />
-				<Num label="Scale Bass" value={s.scaleBass} onChange={(v)=> set({ scaleBass: mm1(v) })} step={0.1} min={100} max={1200} suffix="mm" />
-				<Num label="Anchor Fret" value={s.anchorFret} onChange={(v)=> set({ anchorFret: Math.max(0, Math.round(v)) })} step={1} />
-				<Num label="Curved Exponent" value={s.curvedExponent} onChange={(v)=> set({ curvedExponent: Math.max(0.01, v) })} step={0.01} />
-				<Num label="Nut Span (E–E)" value={s.stringSpanNut} onChange={(v)=> set({ stringSpanNut: mm1(v) })} step={0.1} min={10} max={100} suffix="mm" />
-				<Num label="Bridge Span (E–E)" value={s.stringSpanBridge} onChange={(v)=> set({ stringSpanBridge: mm1(v) })} step={0.1} min={10} max={120} suffix="mm" />
-				<Num label="Overhang" value={s.overhang} onChange={(v)=> set({ overhang: mm1(v) })} step={0.1} min={0} max={20} suffix="mm" />
+				<Num label="Strings" value={s.strings} onChange={(v)=> set({ strings: Math.round(v) })} step={1} min={STATE_LIMITS.strings.min} max={STATE_LIMITS.strings.max} />
+				<Num label="Frets" value={s.frets} onChange={(v)=> set({ frets: Math.round(v) })} step={1} min={STATE_LIMITS.frets.min} max={STATE_LIMITS.frets.max} />
+				<Num label="Scale Treble" value={displayLength(s.scaleTreble)} onChange={setLength('scaleTreble')} step={lengthStep} min={displayLimit(100)} max={displayLimit(1000)} suffix={lengthSuffix} />
+				<Num label="Scale Bass" value={displayLength(s.scaleBass)} onChange={setLength('scaleBass')} step={lengthStep} min={displayLimit(100)} max={displayLimit(1200)} suffix={lengthSuffix} />
+				<Num label="Anchor Fret" value={s.anchorFret} onChange={(v)=> set({ anchorFret: Math.round(v) })} step={1} min={STATE_LIMITS.anchorFret.min} max={Math.min(s.frets, STATE_LIMITS.anchorFret.max)} />
+				<Num label="Curved Exponent" value={s.curvedExponent} onChange={(v)=> set({ curvedExponent: v })} step={0.01} min={STATE_LIMITS.curvedExponent.min} max={STATE_LIMITS.curvedExponent.max} />
+				<Num label="Nut Span (E–E)" value={displayLength(s.stringSpanNut)} onChange={setLength('stringSpanNut')} step={lengthStep} min={displayLimit(10)} max={displayLimit(100)} suffix={lengthSuffix} />
+				<Num label="Bridge Span (E–E)" value={displayLength(s.stringSpanBridge)} onChange={setLength('stringSpanBridge')} step={lengthStep} min={displayLimit(10)} max={displayLimit(120)} suffix={lengthSuffix} />
+				<Num label="Overhang" value={displayLength(s.overhang)} onChange={setLength('overhang')} step={lengthStep} min={0} max={displayLimit(20)} suffix={lengthSuffix} />
 
 						{/* ── Fret markers ───────────────────────────────────────── */}
 					<div className="hr-thin" />
 					<div className="section-title">Fretboard markers</div>
 
-										<Num label="Marker size" value={s.markerSize} onChange={(v)=> set({ markerSize: mm1(v) })} step={0.1} min={1} max={30} suffix="mm" />
+										<Num label="Marker size" value={displayLength(s.markerSize)} onChange={setLength('markerSize')} step={lengthStep} min={displayLimit(1)} max={displayLimit(30)} suffix={lengthSuffix} />
 										{/* Guide line driven marker position */}
 										<Num label="Guide position %" value={s.guidePosPct} onChange={(v)=> set({ guidePosPct: Math.max(0, Math.min(100, Math.round(v))) })} step={1} min={0} max={100} />
 

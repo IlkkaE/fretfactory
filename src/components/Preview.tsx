@@ -24,9 +24,7 @@ export default function Preview() {
     }
   }, [
   s.mode, s.scaleTreble, s.scaleBass, s.anchorFret, s.curvedExponent,
-  s.strings, s.frets, s.stringSpanNut, s.stringSpanBridge, s.overhang, s.units,
-  s.radiusNutIn, s.radiusBridgeIn,
-  s.markerFrets, s.markerSize, s.showGhostHelpers, s.guidePosPct
+  s.strings, s.frets, s.stringSpanNut, s.stringSpanBridge, s.overhang
   ])
 
   const markerEls = useMemo(() => {
@@ -34,7 +32,7 @@ export default function Preview() {
       console.error('[Preview] markers build error', err)
       return []
     }
-  }, [s, built])
+  }, [built, s.frets, s.markerFrets, s.markerSize, s.showGhostHelpers, s.guidePosPct])
 
   // One-time migration: if markerFrets match the old defaults, switch to new defaults (start at 2–3)
   React.useEffect(() => {
@@ -53,13 +51,11 @@ export default function Preview() {
   window.FretFactory = window.FretFactory || {}
   window.FretFactory.curvature = () => {
   const state = useAppState.getState()
-      // radii are stored in inches; convert to mm for calculations
-      const inchTo = (vIn:number)=> vIn * 25.4
-      const Rn = inchTo(state.radiusNutIn ?? 12)
-      const Rb = inchTo(state.radiusBridgeIn ?? 16)
+      const Rn = state.radiusNut ?? 12 * 25.4
+      const Rb = state.radiusBridge ?? 16 * 25.4
       const eps = 1e-4
       const base = buildBoard(state)
-  const result = { radiusNutIn: state.radiusNutIn, radiusBridgeIn: state.radiusBridgeIn }
+  const result = { radiusNutMm: Rn, radiusBridgeMm: Rb }
       const sagCircle = (x:number, xc:number, R:number) => {
         const xx = x - xc
         const disc = Math.max(0, R*R - xx*xx)
@@ -91,7 +87,7 @@ export default function Preview() {
       }
       return { ...result, ok:false, msg:'no helpers' }
     }
-  }, [s.mode, s.units, s.radiusNutIn, s.radiusBridgeIn])
+  }, [s.mode, s.radiusNut, s.radiusBridge])
 
   // ---- zoom & pan: HIDASTETTU 50 % ----
   const [zoom, setZoom] = useState(1)

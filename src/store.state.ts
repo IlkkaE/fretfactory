@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import { SPEC } from './spec'
 import { PRESETS } from './presets/instruments'
 import type { AppState } from './types'
+import { toMillimeters } from './utils/units'
+import { sanitizeStatePatch } from './utils/stateValidation'
 
 export const useAppState = create<AppState>()((set, get) => ({
   // perus
@@ -28,52 +30,52 @@ export const useAppState = create<AppState>()((set, get) => ({
 
   // 12th-fret doubles removed
 
-  // 3D compound radius (inches)
-  radiusNutIn: 12,
-  radiusBridgeIn: 16,
+  // 3D compound radius (millimeters, 12" and 16")
+  radiusNut: 12 * 25.4,
+  radiusBridge: 16 * 25.4,
 
   // Red guide line position (percentage across width)
   guidePosPct: 50,
 
   selectedPresetId: undefined,
 
-  set: (patch) => set(patch),
+  set: (patch) => set(sanitizeStatePatch(patch, get())),
+
+  // Only the presentation unit changes. Internal millimeter values remain
+  // untouched, which prevents cumulative conversion and rounding drift.
+  setUnits: (units) => set(sanitizeStatePatch({ units }, get())),
 
   // Presettien sovitus (yksinkertaistettu baseline)
   applyPreset: (id: string) => {
     const p = PRESETS.find(pp => pp.id === id)
     if (!p) return
-    // Helpers
-    const inchToMm1 = (v?: number) => (v == null ? undefined : Math.round(v * 25.4 * 10) / 10)
-    const mm1 = (v?: number) => (v == null ? undefined : Math.round(v * 10) / 10)
-    const toMm1 = (v?: number) => (p.units === 'inch' ? inchToMm1(v) : mm1(v))
+    const toMm = (v?: number) => v == null ? undefined : toMillimeters(v, p.units)
 
     // Base numeric params (always mm)
     const strings = p.strings
     const frets = p.frets
-    const stringSpanNut = toMm1(p.stringSpanNut)
-    const stringSpanBridge = toMm1(p.stringSpanBridge)
-    const overhang = toMm1(p.overhang)
+    const stringSpanNut = toMm(p.stringSpanNut)
+    const stringSpanBridge = toMm(p.stringSpanBridge)
+    const overhang = toMm(p.overhang)
 
     // Scales → curved-only
-    let scaleTreble = toMm1(p.scaleTreble)
-    let scaleBass = toMm1(p.scaleBass)
+    let scaleTreble = toMm(p.scaleTreble)
+    let scaleBass = toMm(p.scaleBass)
     if (scaleTreble == null || scaleBass == null) {
       // Fallback for equal-mode presets: use one scale for both sides
-      const sc = toMm1(p.scale)
+      const sc = toMm(p.scale)
       scaleTreble = sc
       scaleBass = sc
     }
     const anchorFret = p.anchorFret ?? SPEC.curved.defaultAnchorFret
     const curvedExponent = p.curvedExponent ?? SPEC.curved.defaultExponent
 
-    set({
+    set(sanitizeStatePatch({
       selectedPresetId: id,
       mode: 'curved',
-      units: 'mm',
       strings, frets,
       stringSpanNut, stringSpanBridge, overhang,
       scaleTreble, scaleBass, anchorFret, curvedExponent,
-    })
+    }, get()))
   },
 }))

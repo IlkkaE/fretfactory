@@ -1,5 +1,6 @@
 import React from 'react'
 import { PRESETS } from '../presets/instruments'
+import { presetMeasurements, presetScaleLabel } from '../presets/display'
 import { useAppState } from '../store.state'
 
 export default function PresetMenu() {
@@ -12,7 +13,6 @@ export default function PresetMenu() {
     if (id) applyPreset(id)
   }
 
-  // Build display labels. We don't convert values here; applyPreset does mm conversion with 0.1 precision.
   const abbr = (name?: string) => {
     if (!name) return ''
     const consonants = name.replace(/[^BCDFGHJKLMNPQRSTVWXYZ]/gi, '').toUpperCase()
@@ -20,8 +20,10 @@ export default function PresetMenu() {
   }
   const options = React.useMemo(() => PRESETS.map(p => ({
     id: p.id,
-    label: `${abbr(p.manufacturer)} ${p.model}`.trim()
-  })), [])
+    label: `${`${abbr(p.manufacturer)} ${p.model}`.trim()} · ${presetScaleLabel(p, s.units)}`
+  })), [s.units])
+  const selectedPreset = PRESETS.find(p => p.id === s.selectedPresetId)
+  const details = selectedPreset ? presetMeasurements(selectedPreset, s.units) : null
 
   return (
     <div className="card card-controls glass">
@@ -32,6 +34,13 @@ export default function PresetMenu() {
           <option key={opt.id} value={opt.id}>{opt.label}</option>
         ))}
       </select>
+      {details ? (
+        <div className="preset-details" aria-live="polite">
+          <div>Scale: {details.scale}</div>
+          <div>Nut E–E: {details.nutSpan} · Bridge E–E: {details.bridgeSpan}</div>
+          <div>Overhang: {details.overhang}</div>
+        </div>
+      ) : null}
     </div>
   )
 }
