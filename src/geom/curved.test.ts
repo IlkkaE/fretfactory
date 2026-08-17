@@ -62,7 +62,7 @@ describe('Curved Geometry', () => {
   })
 
   describe('curvedExponent behavior', () => {
-    test('higher exponent should create more fan (more difference between strings)', () => {
+    test('higher exponent should change the interior-string curvature', () => {
       const lowExponent = computeCurvedFretsRaw(
         baseParams.strings, baseParams.frets, baseParams.scaleTreble, baseParams.scaleBass,
         baseParams.anchorFret, baseParams.stringSpanNut, baseParams.stringSpanBridge,
@@ -80,11 +80,9 @@ describe('Curved Geometry', () => {
       const lowFan = lowExponent[midFret - 1]
       const highFan = highExponent[midFret - 1]
 
-      // Higher exponent should create more difference between left and right
-      const lowSpread = Math.abs(lowFan.y_right - lowFan.y_left)
-      const highSpread = Math.abs(highFan.y_right - highFan.y_left)
-
-      expect(highSpread).toBeGreaterThan(lowSpread)
+      // The exponent biases interior-string interpolation. Board-edge points
+      // are extrapolated from adjacent strings, so they may move slightly too.
+      expect(Math.abs(highFan.pts[2].y - lowFan.pts[2].y)).toBeGreaterThan(0.001)
     })
 
     test('exponent = 1 should give linear interpolation', () => {
@@ -103,14 +101,14 @@ describe('Curved Geometry', () => {
   })
 
   describe('string indexing consistency', () => {
-    test('first string (index 0) should be treble side (right)', () => {
+    test('first string (index 0) should be bass side (left)', () => {
       const nb = computeCurvedNutBridge(
         baseParams.strings, baseParams.scaleTreble, baseParams.scaleBass,
         baseParams.anchorFret, baseParams.stringSpanNut, baseParams.stringSpanBridge,
         baseParams.overhang, baseParams.curvedExponent
       )
 
-      // String index 0 should be closer to right edge than left edge
+      // String index 0 should be closer to left edge than right edge
       const firstStringX = nb.nut.pts[1].x // Skip edge point, first string is at index 1
       const leftEdgeX = nb.nut.pts[0].x
       const rightEdgeX = nb.nut.pts[nb.nut.pts.length - 1].x
@@ -118,17 +116,17 @@ describe('Curved Geometry', () => {
       const distToLeft = Math.abs(firstStringX - leftEdgeX)
       const distToRight = Math.abs(firstStringX - rightEdgeX)
       
-      expect(distToRight).toBeLessThan(distToLeft)
+      expect(distToLeft).toBeLessThan(distToRight)
     })
 
-    test('last string should be bass side (left)', () => {
+    test('last string should be treble side (right)', () => {
       const nb = computeCurvedNutBridge(
         baseParams.strings, baseParams.scaleTreble, baseParams.scaleBass,
         baseParams.anchorFret, baseParams.stringSpanNut, baseParams.stringSpanBridge,
         baseParams.overhang, baseParams.curvedExponent
       )
 
-      // Last string should be closer to left edge than right edge
+      // Last string should be closer to right edge than left edge
       const lastStringX = nb.nut.pts[nb.nut.pts.length - 2].x // Skip edge point, last string is at index -2
       const leftEdgeX = nb.nut.pts[0].x
       const rightEdgeX = nb.nut.pts[nb.nut.pts.length - 1].x
@@ -136,7 +134,7 @@ describe('Curved Geometry', () => {
       const distToLeft = Math.abs(lastStringX - leftEdgeX)
       const distToRight = Math.abs(lastStringX - rightEdgeX)
       
-      expect(distToLeft).toBeLessThan(distToRight)
+      expect(distToRight).toBeLessThan(distToLeft)
     })
   })
 })

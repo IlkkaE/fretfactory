@@ -1,5 +1,5 @@
 // Perustyypit
-export type Units = 'mm'
+export type Units = 'mm' | 'inch'
 export type Mode = 'curved'
 
 // App-tila
@@ -28,9 +28,9 @@ export type AppState = {
 
   // 12th-fret doubles removed
 
-  // 3D: compound radius in inches (nut and bridge), independent of UI units
-  radiusNutIn?: number
-  radiusBridgeIn?: number
+  // 3D: compound radius in millimeters, like every other stored length
+  radiusNut?: number
+  radiusBridge?: number
 
   // Preview guide line position (0 = bass edge, 100 = treble edge)
   guidePosPct?: number
@@ -41,5 +41,6 @@ export type AppState = {
 
   // toiminnot
   set: (patch: Partial<AppState>) => void
+  setUnits: (units: Units) => void
   applyPreset: (id: string) => void
 }

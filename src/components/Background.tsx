@@ -6,13 +6,18 @@ export default function Background() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
     let disposed = false
     let paperMod: any
     let strings: any
     let onMouseMove: ((ev: MouseEvent) => void) | null = null
+    let onVisibilityChange: (() => void) | null = null
+    let mouseFrame = 0
+    let pendingMouse: { x: number; y: number } | null = null
 
     const setupCanvasSize = (paper: any, canvas: HTMLCanvasElement) => {
-      const dpr = window.devicePixelRatio || 1
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
       const w = window.innerWidth
       const h = window.innerHeight
       if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
@@ -56,9 +61,15 @@ export default function Background() {
         }
 
         onMouseMove = (ev: MouseEvent) => {
-          const pt = new paperMod.Point(ev.clientX, ev.clientY)
-          const proj = paperMod.view.viewToProject(pt)
-          pluck(proj)
+          pendingMouse = { x: ev.clientX, y: ev.clientY }
+          if (mouseFrame) return
+          mouseFrame = window.requestAnimationFrame(() => {
+            mouseFrame = 0
+            if (!pendingMouse || disposed || document.hidden) return
+            const pt = new paperMod.Point(pendingMouse.x, pendingMouse.y)
+            pendingMouse = null
+            pluck(paperMod.view.viewToProject(pt))
+          })
         }
 
         const onFrame = (event: any) => {
@@ -66,6 +77,11 @@ export default function Background() {
             const s = strings.children[i] as any
             const freq = 2 + i * 0.3
             const offset = (s as any).data.offset as number
+            if (offset < 0.02) {
+              s.segments[1].point.y = (s as any).data.baseY
+              ;(s as any).data.offset = 0
+              continue
+            }
             const dy = Math.sin((event.time as number) * freq) * offset
             s.segments[1].point.y = (s as any).data.baseY + dy
             s.smooth()
@@ -86,7 +102,12 @@ export default function Background() {
 
         paperMod.view.onFrame = onFrame as any
         paperMod.view.onResize = onResize as any
+        onVisibilityChange = () => {
+          paperMod.view.onFrame = document.hidden ? null : onFrame
+          if (!document.hidden) paperMod.view.requestUpdate()
+        }
         window.addEventListener('mousemove', onMouseMove, { passive: true })
+        document.addEventListener('visibilitychange', onVisibilityChange)
         onResize()
       } catch (err) {
         console.error('Paper background init failed:', err)
@@ -95,9 +116,11 @@ export default function Background() {
 
     const cleanup = () => {
       try { if (paperMod) { paperMod.view.onFrame = null as any; paperMod.view.onResize = null as any } } catch {}
+      if (mouseFrame) window.cancelAnimationFrame(mouseFrame)
       try { paperMod?.project?.activeLayer?.removeChildren() } catch {}
       try { paperMod?.project?.remove?.() } catch {}
       try { if (onMouseMove) window.removeEventListener('mousemove', onMouseMove) } catch {}
+      try { if (onVisibilityChange) document.removeEventListener('visibilitychange', onVisibilityChange) } catch {}
     }
 
     init()

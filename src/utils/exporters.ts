@@ -2,7 +2,7 @@ import { PRESETS } from '../presets/instruments'
 import type { AppState } from '../types'
 import { computeCurvedFretsRaw, computeCurvedNutBridge } from '../geom/curved'
 import pchipToBezierPath, { pchipToBezierSegments } from '../geom/pchip'
-import { getMargin, getUnitAttribute } from './units'
+import { fromMillimeters, getMargin, getUnitAttribute } from './units'
 import { SVG_CONSTANTS, VECTOR_EFFECT } from './svg'
 
 function download(filename: string, content: string, type: string) {
@@ -22,7 +22,6 @@ function download(filename: string, content: string, type: string) {
   })
 }
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-const MM = (units: 'mm' | 'inch', vmm: number) => units === 'inch' ? vmm / 25.4 : vmm
 const MARK_FRETS = [2,4,6,8,11,14,16,18,20]
 
 export function exportSVG(s: AppState) {
@@ -33,12 +32,11 @@ export function exportSVG(s: AppState) {
   const presetSlug = preset ? slug(`${preset.manufacturer}-${preset.model}`) : 'custom'
   const baseName = `fretfactory_${presetSlug}_curved_${s.units}`
 
-  const unitAttr = getUnitAttribute('mm')
+  const unitAttr = getUnitAttribute(s.units)
   const MARGIN = getMargin('mm')
   const { STROKE_WIDTHS: SW, COLORS: C } = SVG_CONSTANTS
   const VEC = VECTOR_EFFECT
 
-  const markRadius = MM('mm', Math.max(1, Math.min(30, s.markerSize ?? 6))) / 2
   const GHOST_ON = Boolean(s.showGhostHelpers)
 
   {
@@ -126,7 +124,9 @@ export function exportSVG(s: AppState) {
       lines.push(`<line ${VEC} x1="${cx}" y1="${cy-r}" x2="${cx}" y2="${cy+r}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
     }
 
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}${unitAttr}" height="${H}${unitAttr}" viewBox="0 0 ${W} ${H}">\n  <g fill="none">\n    ${lines.join('\n    ')}\n  </g>\n</svg>`
+    const physicalW = fromMillimeters(W, s.units)
+    const physicalH = fromMillimeters(H, s.units)
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${physicalW}${unitAttr}" height="${physicalH}${unitAttr}" viewBox="0 0 ${W} ${H}">\n  <g fill="none">\n    ${lines.join('\n    ')}\n  </g>\n</svg>`
     download(`${baseName}.svg`, svg, 'image/svg+xml')
 }
 }
@@ -292,6 +292,25 @@ export async function exportPDFA4(s: AppState) {
   const yPages = Math.ceil(H / printableHeight)
   const lineWidth = 25.4 / 72 // ~0.353mm
 
+  // Index segments by page once. This avoids sending every off-page segment
+  // through jsPDF for every tile while preserving overlap between pages.
+  const pageSegments: Seg[][] = Array.from({ length: xPages * yPages }, () => [])
+  for (const sg of segs) {
+    const minX = Math.min(sg.x1, sg.x2)
+    const maxX = Math.max(sg.x1, sg.x2)
+    const minY = Math.min(sg.y1, sg.y2)
+    const maxY = Math.max(sg.y1, sg.y2)
+    const minXi = Math.max(0, Math.ceil((minX + pageOverlap - pageWidth) / printableWidth))
+    const maxXi = Math.min(xPages - 1, Math.floor((maxX + pageOverlap) / printableWidth))
+    const minYi = Math.max(0, Math.ceil((minY + pageOverlap - pageHeight) / printableHeight))
+    const maxYi = Math.min(yPages - 1, Math.floor((maxY + pageOverlap) / printableHeight))
+    for (let yi = minYi; yi <= maxYi; yi++) {
+      for (let xi = minXi; xi <= maxXi; xi++) {
+        pageSegments[(yi * xPages) + xi].push(sg)
+      }
+    }
+  }
+
   for (let yi = 0; yi < yPages; yi++) {
     for (let xi = 0; xi < xPages; xi++) {
       const yOffset = (pageHeight * yi) - (pageOverlap * (1 + (2 * yi)))
@@ -303,8 +322,8 @@ export async function exportPDFA4(s: AppState) {
       doc.rect(pageOverlap, pageOverlap, printableWidth, printableHeight)
       doc.setDrawColor(0)
 
-      // Draw all segments offset into this page
-      for (const sg of segs) {
+      // Draw only segments that intersect this page.
+      for (const sg of pageSegments[(yi * xPages) + xi]) {
         doc.line(
           sg.x1 - xOffset,
           sg.y1 - yOffset,
@@ -318,32 +337,4 @@ export async function exportPDFA4(s: AppState) {
 
   // prefer jsPDF saver to keep consistency with other exports' filename format
   doc.save(`${baseName}.pdf`)
-}
-
-export function exportCSV(s: AppState) {
-  const rows = computeCurvedFretsRaw(s.strings, s.frets, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12, s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1)
-  const headerPts = rows[0]?.pts.map((_, i) => `x${i};y${i}`) ?? []
-  const out = ['fret;x_left;y_left;x_right;y_right;' + headerPts.join(';')]
-  rows.forEach(r => {
-    const cells = [r.n, r.x_left.toFixed(5), r.y_left.toFixed(5), r.x_right.toFixed(5), r.y_right.toFixed(5)]
-    r.pts.forEach(p => { cells.push(p.x.toFixed(5), p.y.toFixed(5)) })
-    out.push(cells.join(';'))
-  })
-  const preset = PRESETS.find(p => p.id === s.selectedPresetId)
-  const presetSlug = preset ? slug(`${preset.manufacturer}-${preset.model}`) : 'custom'
-  const baseName = `fretfactory_${presetSlug}_curved_${s.units}`
-  download(`${baseName}.csv`, out.join('\n'), 'text/csv')
-}
-
-export function exportJSON(s: AppState) {
-  const frets = computeCurvedFretsRaw(s.strings, s.frets, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12, s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1)
-  const payload = {
-    mode: 'curved', units: s.units, strings: s.strings, frets: s.frets,
-    scaleTreble: s.scaleTreble, scaleBass: s.scaleBass, anchorFret: s.anchorFret, curvedExponent: s.curvedExponent,
-    stringSpanNut: s.stringSpanNut, stringSpanBridge: s.stringSpanBridge, overhang: s.overhang, data: frets
-  }
-  const preset = PRESETS.find(p => p.id === s.selectedPresetId)
-  const presetSlug = preset ? slug(`${preset.manufacturer}-${preset.model}`) : 'custom'
-  const baseName = `fretfactory_${presetSlug}_curved_${s.units}`
-  download(`${baseName}.json`, JSON.stringify(payload, null, 2), 'application/json')
 }

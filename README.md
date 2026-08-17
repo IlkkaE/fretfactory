@@ -21,20 +21,14 @@ Outputs are written to `dist/`.
 
 1. Create a GitHub repository and push this project.
 2. Ensure your default branch is `main` (or update the workflow accordingly).
-3. The included GitHub Actions workflow `.github/workflows/deploy.yml` builds and deploys to Pages on each push to `main`.
+3. The included GitHub Actions workflow `.github/workflows/deploy-pages.yml` tests, builds, and deploys to Pages on each push to `main`.
 4. In the repository settings, set Pages source to “GitHub Actions”.
 
-Vite base path is configured via the `VITE_BASE` env var. The workflow sets it automatically to `/<repo-name>/`.
+Vite is configured for a custom domain served from `/`. If the application is instead published at `https://name.github.io/repository/`, change `base` in `vite.config.ts` to `/repository/` before building.
 
 ### Local test of base path
 
-Create `.env` from `.env.example` and set:
-
-```
-VITE_BASE=/your-repo-name/
-```
-
-Rebuild to verify relative paths under the base work.
+Run `npm run build` and `npm run preview` to verify the production build locally.
 
 ## Google AdSense (optional)
 

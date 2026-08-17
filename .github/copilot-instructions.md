@@ -6,7 +6,7 @@ FretFactory is a specialized web app for designing multi-scale (fan-fret) guitar
 ## Critical Domain Knowledge
 
 ### Multi-Scale Geometry (Core Business Logic)
-- **String Indexing**: Index 0 = treble side (RIGHT, thinner strings), Index N-1 = bass side (LEFT, thicker strings)
+- **String Indexing**: Index 0 = bass side (LEFT, thicker strings), Index N-1 = treble side (RIGHT, thinner strings)
 - **Scale Parameters**: `scaleTreble` controls RIGHT side, `scaleBass` controls LEFT side
 - **Curved Exponent**: 1.0 = linear interpolation, >1.0 = more fan effect
 - **Anchor Fret**: Where all strings converge (typically 7-12)
@@ -23,23 +23,21 @@ FretFactory is a specialized web app for designing multi-scale (fan-fret) guitar
 App.tsx (layout grid)
 ├── PresetMenu.tsx (instrument selection)
 ├── Controls.tsx (parameter inputs)
-├── ExportGrid.tsx (SVG/PDF/CSV/JSON exports)
+├── ExportGrid.tsx (SVG/PDF exports)
 └── Preview.tsx (real-time visualization)
 ```
 
 ### Export System (`src/utils/exporters.ts`)
 - **SVG**: Vector graphics with PCHIP-smoothed curved frets
 - **PDF**: Multi-page A4 tiling for large fretboards
-- **CSV**: Numerical coordinates for CNC
-- **JSON**: Complete geometry data
 - Uses Paper.js for background animation, jsPDF for PDF generation
 
 ## Development Conventions
 
 ### Units & Measurements
 - Internal storage: Always millimeters (mm)
-- UI helpers: `mm1()` rounds to 0.1mm precision
-- Export utilities: Convert between mm/inch via `MM()` function
+- UI helpers convert between display units and internal millimeters without mutating stored values
+- Export utilities keep geometry in millimeters and declare the selected physical unit in exported files
 - Geometry expects positive Y toward bridge, X left-to-right
 
 ### Naming Conventions
@@ -62,15 +60,14 @@ App.tsx (layout grid)
 ## Build & Deploy
 - **Dev**: `npm run dev` (Vite with HMR)
 - **Build**: `npm run build` (TypeScript compilation + Vite bundling)
-- **Deploy**: GitHub Actions to Pages (`.github/workflows/deploy.yml`)
-- **Base Path**: Configured via `VITE_BASE` environment variable
+- **Deploy**: GitHub Actions to Pages (`.github/workflows/deploy-pages.yml`)
+- **Base Path**: `/` for the custom-domain deployment configured in `vite.config.ts`
 
 ## External Dependencies
 - **React**: Standard functional components with hooks
 - **Paper.js**: Canvas-based background animation
 - **Zustand**: Lightweight state management
 - **jsPDF**: PDF generation (dynamic import)
-- **Lil-gui**: Debug controls (when needed)
 
 ## When Making Changes
 1. **Geometry changes**: Update tests and validation in `curved.ts`
