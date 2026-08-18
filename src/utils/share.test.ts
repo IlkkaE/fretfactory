@@ -9,9 +9,10 @@ describe('parseHash', () => {
       mode: 'equal',
       units: 'inch',
       strings: 100_000,
+      removeStrings: true,
       set: null,
       selectedPresetId: 'hidden-field',
-    }))).toEqual({ mode: 'curved', units: 'inch', strings: 12 })
+    }))).toEqual({ mode: 'curved', units: 'inch', strings: 12, removeStrings: true })
   })
 
   it('rejects unrelated and oversized hashes', () => {

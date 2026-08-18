@@ -24,7 +24,7 @@ export default function Preview() {
     }
   }, [
   s.mode, s.scaleTreble, s.scaleBass, s.anchorFret, s.curvedExponent,
-  s.strings, s.frets, s.stringSpanNut, s.stringSpanBridge, s.overhang
+  s.strings, s.removeStrings, s.frets, s.stringSpanNut, s.stringSpanBridge, s.overhang
   ])
 
   const markerEls = useMemo(() => {

@@ -8,6 +8,7 @@ export type AppState = {
   mode: Mode
   units: Units
   strings: number
+  removeStrings: boolean
   frets: number
 
   // curved

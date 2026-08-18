@@ -69,6 +69,7 @@ export default function Controls() {
 			<div className="card card-controls">
 				<div className="grid-1">
 				<Num label="Strings" value={s.strings} onChange={(v)=> set({ strings: Math.round(v) })} step={1} min={STATE_LIMITS.strings.min} max={STATE_LIMITS.strings.max} />
+				<Check label="Remove strings" checked={s.removeStrings} onChange={(v)=> set({ removeStrings: v })} />
 				<Num label="Frets" value={s.frets} onChange={(v)=> set({ frets: Math.round(v) })} step={1} min={STATE_LIMITS.frets.min} max={STATE_LIMITS.frets.max} />
 				<Num label="Scale Treble" value={displayLength(s.scaleTreble)} onChange={setLength('scaleTreble')} step={lengthStep} min={displayLimit(100)} max={displayLimit(1000)} suffix={lengthSuffix} />
 				<Num label="Scale Bass" value={displayLength(s.scaleBass)} onChange={setLength('scaleBass')} step={lengthStep} min={displayLimit(100)} max={displayLimit(1200)} suffix={lengthSuffix} />

@@ -58,9 +58,11 @@ export function exportSVG(s: AppState) {
     const lines: string[] = []
     lines.push(`<line ${VEC} x1="${nb.nut.x_left+sx}" y1="${nb.nut.y_left+sy}" x2="${nb.bridge.x_left+sx}" y2="${nb.bridge.y_left+sy}" stroke="${C.EDGE}" stroke-width="${SW.EDGE}"/>`)
     lines.push(`<line ${VEC} x1="${nb.nut.x_right+sx}" y1="${nb.nut.y_right+sy}" x2="${nb.bridge.x_right+sx}" y2="${nb.bridge.y_right+sy}" stroke="${C.EDGE}" stroke-width="${SW.EDGE}"/>`)
-    for (let i = 0; i < s.strings; i++) {
-      const pNut = nb.nut.pts[i + 1], pBr = nb.bridge.pts[i + 1]
-      lines.push(`<line ${VEC} x1="${pNut.x+sx}" y1="${pNut.y+sy}" x2="${pBr.x+sx}" y2="${pBr.y+sy}" stroke="${C.STRING}" stroke-width="${SW.STRING}"/>`)
+    if (!s.removeStrings) {
+      for (let i = 0; i < s.strings; i++) {
+        const pNut = nb.nut.pts[i + 1], pBr = nb.bridge.pts[i + 1]
+        lines.push(`<line ${VEC} x1="${pNut.x+sx}" y1="${pNut.y+sy}" x2="${pBr.x+sx}" y2="${pBr.y+sy}" stroke="${C.STRING}" stroke-width="${SW.STRING}"/>`)
+      }
     }
     for (const r of rows) {
       if ((r as any).straight) {
@@ -194,9 +196,11 @@ export async function exportPDFA4(s: AppState) {
     segs.push({ x1: nb.nut.x_left+sx, y1: nb.nut.y_left+sy, x2: nb.bridge.x_left+sx, y2: nb.bridge.y_left+sy })
     segs.push({ x1: nb.nut.x_right+sx, y1: nb.nut.y_right+sy, x2: nb.bridge.x_right+sx, y2: nb.bridge.y_right+sy })
     // strings
-    for (let i = 0; i < s.strings; i++) {
-      const pNut = nb.nut.pts[i + 1], pBr = nb.bridge.pts[i + 1]
-      segs.push({ x1: pNut.x+sx, y1: pNut.y+sy, x2: pBr.x+sx, y2: pBr.y+sy })
+    if (!s.removeStrings) {
+      for (let i = 0; i < s.strings; i++) {
+        const pNut = nb.nut.pts[i + 1], pBr = nb.bridge.pts[i + 1]
+        segs.push({ x1: pNut.x+sx, y1: pNut.y+sy, x2: pBr.x+sx, y2: pBr.y+sy })
+      }
     }
     // frets as cubic beziers (smoothed like SVG)
     for (const r of rows) {

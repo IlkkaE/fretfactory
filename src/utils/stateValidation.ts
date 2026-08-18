@@ -41,6 +41,7 @@ export function sanitizeStatePatch(
 
   if (hasOwn(source, 'mode')) safe.mode = 'curved'
   if (source.units === 'mm' || source.units === 'inch') safe.units = source.units
+  if (typeof source.removeStrings === 'boolean') safe.removeStrings = source.removeStrings
 
   for (const key of Object.keys(STATE_LIMITS) as NumericStateKey[]) {
     const value = source[key]

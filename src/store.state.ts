@@ -10,6 +10,7 @@ export const useAppState = create<AppState>()((set, get) => ({
   mode: 'curved',
   units: 'mm',
   strings: 6,
+  removeStrings: false,
   frets: 22,
   
   // curved oletukset
