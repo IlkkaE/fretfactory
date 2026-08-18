@@ -35,4 +35,9 @@ describe('sanitizeStatePatch', () => {
     )
     expect(result).toMatchObject({ frets: 4, anchorFret: 4, markerFrets: [2] })
   })
+
+  it('accepts only boolean removeStrings values', () => {
+    expect(sanitizeStatePatch({ removeStrings: true })).toEqual({ removeStrings: true })
+    expect(sanitizeStatePatch({ removeStrings: 'true' })).toEqual({})
+  })
 })

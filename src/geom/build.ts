@@ -80,12 +80,14 @@ export function buildBoard(s: AppState): BuildResult {
   const nutBridgeEls: DrawEl[] = []
 
   // Strings in background
-  for (let i = 0; i < s.strings; i++) {
-  // nb.nut.pts / nb.bridge.pts include edges at indices 0 and length-1.
-  // Actual string lines are at indices 1..strings, so offset by +1 here.
-  const a = nb.nut.pts[i + 1]
-  const b = nb.bridge.pts[i + 1]
-    stringsEls.push({ kind:'line', x1:a.x, y1:a.y, x2:b.x, y2:b.y, color:COLORS.string, w:STROKES.STRING })
+  if (!s.removeStrings) {
+    for (let i = 0; i < s.strings; i++) {
+      // nb.nut.pts / nb.bridge.pts include edges at indices 0 and length-1.
+      // Actual string lines are at indices 1..strings, so offset by +1 here.
+      const a = nb.nut.pts[i + 1]
+      const b = nb.bridge.pts[i + 1]
+      stringsEls.push({ kind:'line', x1:a.x, y1:a.y, x2:b.x, y2:b.y, color:COLORS.string, w:STROKES.STRING })
+    }
   }
 
   // Edges

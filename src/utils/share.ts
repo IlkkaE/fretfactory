@@ -3,7 +3,7 @@ import { sanitizeStatePatch } from './stateValidation'
 
 const MAX_HASH_LENGTH = 12_000
 const SHAREABLE_KEYS = new Set([
-  'mode', 'units', 'strings', 'frets',
+  'mode', 'units', 'strings', 'removeStrings', 'frets',
   'scaleTreble', 'scaleBass', 'anchorFret', 'curvedExponent',
   'stringSpanNut', 'stringSpanBridge', 'overhang',
   'markerFrets', 'markerSize', 'radiusNut', 'radiusBridge',
@@ -11,7 +11,7 @@ const SHAREABLE_KEYS = new Set([
 
 // Keys kept small if we ever switch to query params; for now JSON in hash
 export type ShareState = Partial<Pick<AppState,
-  | 'mode' | 'units' | 'strings' | 'frets'
+  | 'mode' | 'units' | 'strings' | 'removeStrings' | 'frets'
   | 'scaleTreble' | 'scaleBass' | 'anchorFret' | 'curvedExponent'
   | 'stringSpanNut' | 'stringSpanBridge' | 'overhang'
   | 'markerFrets' | 'markerSize' | 'radiusNut' | 'radiusBridge'
@@ -23,6 +23,7 @@ export function pickShareableState(s: AppState): ShareState {
   mode: 'curved',
     units: s.units,
     strings: s.strings,
+    removeStrings: s.removeStrings,
     frets: s.frets,
     scaleTreble: s.scaleTreble,
     scaleBass: s.scaleBass,
