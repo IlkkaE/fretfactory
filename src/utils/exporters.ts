@@ -4,6 +4,7 @@ import { computeCurvedFretsRaw, computeCurvedNutBridge } from '../geom/curved'
 import pchipToBezierPath, { pchipToBezierSegments } from '../geom/pchip'
 import { fromMillimeters, getMargin, getUnitAttribute } from './units'
 import { SVG_CONSTANTS, VECTOR_EFFECT } from './svg'
+import { createDXF } from './dxf'
 
 function download(filename: string, content: string, type: string) {
   const blob = new Blob([content], { type })
@@ -23,6 +24,12 @@ function download(filename: string, content: string, type: string) {
 }
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 const MARK_FRETS = [2,4,6,8,11,14,16,18,20]
+
+export function exportDXF(s: AppState) {
+  const result = createDXF(s)
+  if (!result) return
+  download(result.filename, result.content, 'application/dxf')
+}
 
 export function exportSVG(s: AppState) {
   const canCurved = s.mode === 'curved' && !!(s.scaleTreble && s.scaleBass) && !!(s.stringSpanNut && s.stringSpanBridge && s.overhang != null)
@@ -137,7 +144,17 @@ export function exportSVG(s: AppState) {
  * Export a multipage A4 PDF with guide rectangles (apuviivat), mm units only.
  * Tiling approach inspired by FretFind2D's getPDFMultipage.
  */
-export async function exportPDFA4(s: AppState) {
+type PDFLayout = 'a4-tiles' | 'single-page'
+
+export function exportPDFA4(s: AppState) {
+  return exportPDF(s, 'a4-tiles')
+}
+
+export function exportPDFSinglePage(s: AppState) {
+  return exportPDF(s, 'single-page')
+}
+
+async function exportPDF(s: AppState, layout: PDFLayout) {
   const canCurved = s.mode === 'curved' && !!(s.scaleTreble && s.scaleBass) && !!(s.stringSpanNut && s.stringSpanBridge && s.overhang != null)
   if (!canCurved) return
 
@@ -286,6 +303,28 @@ export async function exportPDFA4(s: AppState) {
     try { alert('PDF export failed: incompatible jsPDF build.') } catch {}
     return
   }
+  const lineWidth = 25.4 / 72 // ~0.353mm
+
+  if (layout === 'single-page') {
+    const pageMargin = 5
+    const pageWidth = W + (2 * pageMargin)
+    const pageHeight = H + (2 * pageMargin)
+    const orientation = pageWidth >= pageHeight ? 'landscape' : 'portrait'
+    const doc = new jsPDFCtor({ orientation, unit: 'mm', format: [pageWidth, pageHeight] })
+    doc.setLineWidth(lineWidth)
+    doc.setDrawColor(0)
+    for (const sg of segs) {
+      doc.line(
+        sg.x1 + pageMargin,
+        sg.y1 + pageMargin,
+        sg.x2 + pageMargin,
+        sg.y2 + pageMargin,
+      )
+    }
+    doc.save(`${baseName}_single-page.pdf`)
+    return
+  }
+
   const doc = new jsPDFCtor('p', 'mm', 'a4')
   const pageWidth = 210
   const pageHeight = 297
@@ -294,8 +333,6 @@ export async function exportPDFA4(s: AppState) {
   const printableHeight = pageHeight - (2 * pageOverlap)
   const xPages = Math.ceil(W / printableWidth)
   const yPages = Math.ceil(H / printableHeight)
-  const lineWidth = 25.4 / 72 // ~0.353mm
-
   // Index segments by page once. This avoids sending every off-page segment
   // through jsPDF for every tile while preserving overlap between pages.
   const pageSegments: Seg[][] = Array.from({ length: xPages * yPages }, () => [])
