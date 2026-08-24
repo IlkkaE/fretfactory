@@ -21,11 +21,16 @@ function gaugeLabel(gauge: number): string {
   return gauge.toFixed(4).replace(/^0/, '').replace(/0+$/, '').replace(/\.$/, '')
 }
 
-function matchStatus(percent: number): { label: string; className: string } {
+function feelName(feel: StringFeel): string {
+  return feel.charAt(0).toUpperCase() + feel.slice(1)
+}
+
+function matchStatus(percent: number, feel: StringFeel, withinFeelBand: boolean): { label: string; className: string } {
   const delta = Math.abs(percent - 100)
-  if (delta <= 4) return { label: 'Balanced', className: 'string-status-good' }
-  if (percent < 100) return { label: `${Math.round(100 - percent)}% lighter`, className: 'string-status-near' }
-  return { label: `${Math.round(percent - 100)}% firmer`, className: 'string-status-near' }
+  const direction = percent < 100 ? `${Math.round(100 - percent)}% lighter` : `${Math.round(percent - 100)}% firmer`
+  if (delta <= 4) return { label: `${feelName(feel)} · target`, className: 'string-status-good' }
+  if (withinFeelBand) return { label: `${feelName(feel)} · ${direction}`, className: 'string-status-good' }
+  return { label: `Outside ${feelName(feel)} band · ${direction}`, className: 'string-status-near' }
 }
 
 export default function StringAdvisor() {
@@ -41,6 +46,7 @@ export default function StringAdvisor() {
   const recommendations = pitches.map((pitch, index) =>
     recommendString(pitch, scales[index], s.stringFeel, s.preferWoundG3))
   const profileUnsupported = Math.max(...scales) > 30 * 25.4
+  const displayIndices = Array.from({ length: s.strings }, (_, displayIndex) => s.strings - 1 - displayIndex)
 
   const setPitchPart = (index: number, part: 'note' | 'octave', value: string | number) => {
     const current = splitPitch(pitches[index])
@@ -60,7 +66,7 @@ export default function StringAdvisor() {
         <span className="help-tooltip">
           <button type="button" className="help-button" aria-label="String advisor limitations" aria-describedby="string-advisor-help">?</button>
           <span id="string-advisor-help" className="help-tooltip-content help-tooltip-right" role="tooltip">
-            Estimates open-string tension from pitch, each string&apos;s scale length and a versioned D&apos;Addario XL catalog. Equal calculated tension does not guarantee identical feel. Nut action, stiffness, winding and playing style are not modeled. Verify physical length and fit before ordering.
+            Each feel maps to one target open-string tension. The calculator solves the ideal unit weight for every pitch and scale, then chooses the nearest catalog gauge. An ±8% band is used as a practical matching tolerance, not a physical law. Equal calculated tension does not guarantee identical feel.
           </span>
         </span>
       </div>
@@ -90,20 +96,22 @@ export default function StringAdvisor() {
       )}
 
       {!profileUnsupported && <div className="string-list" role="table" aria-label="String gauge recommendations">
-        {recommendations.map((recommendation, index) => {
-          const pitch = splitPitch(pitches[index])
-          const status = recommendation.targetPercent == null ? null : matchStatus(recommendation.targetPercent)
+        {displayIndices.map((internalIndex, displayIndex) => {
+          const recommendation = recommendations[internalIndex]
+          const pitch = splitPitch(pitches[internalIndex])
+          const stringNumber = displayIndex + 1
+          const status = recommendation.targetPercent == null ? null : matchStatus(recommendation.targetPercent, s.stringFeel, recommendation.withinFeelBand)
           return (
-            <div className="string-row" role="row" key={index}>
-              <div className="string-index" aria-label={`String ${index + 1}`}>
-                <strong>{index + 1}</strong>
-                <span>{index === 0 ? 'bass' : index === s.strings - 1 ? 'treble' : ''}</span>
+            <div className="string-row" role="row" key={internalIndex}>
+              <div className="string-index" aria-label={`String ${stringNumber}`}>
+                <strong>{stringNumber}</strong>
+                <span>{displayIndex === 0 ? 'treble' : displayIndex === s.strings - 1 ? 'bass' : ''}</span>
               </div>
               <div className="pitch-editor">
-                <select className="select string-note-select" aria-label={`String ${index + 1} note`} value={pitch.note} onChange={event => setPitchPart(index, 'note', event.target.value)}>
+                <select className="select string-note-select" aria-label={`String ${stringNumber} note`} value={pitch.note} onChange={event => setPitchPart(internalIndex, 'note', event.target.value)}>
                   {NOTE_NAMES.map(note => <option key={note} value={note}>{note}</option>)}
                 </select>
-                <select className="select string-octave-select" aria-label={`String ${index + 1} octave`} value={pitch.octave} onChange={event => setPitchPart(index, 'octave', Number(event.target.value))}>
+                <select className="select string-octave-select" aria-label={`String ${stringNumber} octave`} value={pitch.octave} onChange={event => setPitchPart(internalIndex, 'octave', Number(event.target.value))}>
                   {OCTAVES.map(octave => <option key={octave} value={octave}>{octave}</option>)}
                 </select>
               </div>

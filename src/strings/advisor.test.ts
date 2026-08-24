@@ -15,6 +15,7 @@ describe('string gauge advisor', () => {
     const pitches = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4']
     const gauges = pitches.map(pitch => recommendString(pitch, 25.5 * 25.4, 'regular').match?.gaugeInches)
     expect(gauges).toEqual([.046, .034, .025, .017, .0135, .010])
+    expect(pitches.every(pitch => recommendString(pitch, 25.5 * 25.4, 'regular').withinFeelBand)).toBe(true)
   })
 
   it('uses each fan-fret string scale from bass to treble', () => {
@@ -32,6 +33,8 @@ describe('string gauge advisor', () => {
   })
 
   it('returns no verified match outside the catalog range', () => {
-    expect(recommendString('C0', 100, 'firm').match).toBeNull()
+    const recommendation = recommendString('C0', 100, 'firm')
+    expect(recommendation.match).toBeNull()
+    expect(recommendation.withinFeelBand).toBe(false)
   })
 })

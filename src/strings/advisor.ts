@@ -8,10 +8,14 @@ export const FEEL_TARGETS_LB: Record<StringFeel, number> = {
   firm: 19.5,
 }
 
+// Product-language tolerance, not a physical law. Outside this band the
+// nearest catalog gauge is shown without claiming it matches the selected feel.
+export const FEEL_TOLERANCE_PERCENT = 8
+
 export const FEEL_LABELS: Record<StringFeel, string> = {
-  loose: 'Loose · 9–42 reference',
-  regular: 'Regular · balanced 10–46 reference',
-  firm: 'Firm · 11–49 reference',
+  loose: 'Loose · equalized target',
+  regular: 'Regular · equalized target',
+  firm: 'Firm · equalized target',
 }
 
 const NOTE_INDEX: Record<string, number> = {
@@ -29,6 +33,7 @@ export type StringRecommendation = {
   match: CatalogString | null
   tensionLb: number | null
   targetPercent: number | null
+  withinFeelBand: boolean
   lighter: CatalogString | null
   heavier: CatalogString | null
 }
@@ -94,7 +99,7 @@ export function recommendString(
     .sort((a, b) => a.item.gaugeInches - b.item.gaugeInches)
 
   if (!frequencyHz || !Number.isFinite(scaleMm) || scaleMm <= 0 || candidates.length === 0) {
-    return { pitch, scaleMm, frequencyHz, targetLb, match: null, tensionLb: null, targetPercent: null, lighter: null, heavier: null }
+    return { pitch, scaleMm, frequencyHz, targetLb, match: null, tensionLb: null, targetPercent: null, withinFeelBand: false, lighter: null, heavier: null }
   }
 
   const closestIndex = candidates.reduce((best, candidate, index) =>
@@ -112,6 +117,7 @@ export function recommendString(
     match: isVerifiedRange ? closest.item : null,
     tensionLb: isVerifiedRange ? closest.tension : null,
     targetPercent: isVerifiedRange ? targetPercent : null,
+    withinFeelBand: isVerifiedRange && Math.abs(targetPercent - 100) <= FEEL_TOLERANCE_PERCENT,
     lighter: isVerifiedRange ? candidates[closestIndex - 1]?.item ?? null : null,
     heavier: isVerifiedRange ? candidates[closestIndex + 1]?.item ?? null : null,
   }

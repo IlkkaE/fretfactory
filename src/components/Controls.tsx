@@ -133,12 +133,14 @@ export function NutCompensationControls() {
 							: 'Estimated defaults are available for 6–8-string electric guitars.'}
 					</div>
 				)}
-				{s.showNutCompensation && Array.from({ length: s.strings }, (_, i) => (
-					<Num key={i} label={`String ${i + 1}${i === 0 ? ' (bass)' : i === s.strings - 1 ? ' (treble)' : ''} offset (+ toward bridge)`}
-						value={displayCompensation(s.nutCompensationOffsets?.[i] ?? 0)}
-						onChange={setNutCompensation(i)} step={s.units === 'inch' ? 0.0001 : 0.01}
+				{s.showNutCompensation && Array.from({ length: s.strings }, (_, displayIndex) => {
+					const internalIndex = s.strings - 1 - displayIndex
+					const stringNumber = displayIndex + 1
+					return <Num key={internalIndex} label={`String ${stringNumber}${displayIndex === 0 ? ' (treble)' : displayIndex === s.strings - 1 ? ' (bass)' : ''} offset (+ toward bridge)`}
+						value={displayCompensation(s.nutCompensationOffsets?.[internalIndex] ?? 0)}
+						onChange={setNutCompensation(internalIndex)} step={s.units === 'inch' ? 0.0001 : 0.01}
 						min={displayLimit(-5)} max={displayLimit(5)} suffix={lengthSuffix} />
-				))}
+				})}
 			</div>
 		</div>
 	)
