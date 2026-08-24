@@ -14,6 +14,7 @@ export const STATE_LIMITS = {
   radiusNut: { min: 25.4, max: 2540 },
   radiusBridge: { min: 25.4, max: 2540 },
   guidePosPct: { min: 0, max: 100 },
+  nutCompensationOffset: { min: -5, max: 5 },
 } as const
 
 type StatePatch = Partial<AppState>
@@ -73,6 +74,17 @@ export function sanitizeStatePatch(
   }
 
   if (typeof source.showGhostHelpers === 'boolean') safe.showGhostHelpers = source.showGhostHelpers
+  if (typeof source.showNutCompensation === 'boolean') safe.showNutCompensation = source.showNutCompensation
+  if (source.nutCompensationProfile === 'custom' || source.nutCompensationProfile === 'general-electric-guitar') {
+    safe.nutCompensationProfile = source.nutCompensationProfile
+  }
+  if (Array.isArray(source.nutCompensationOffsets)) {
+    safe.nutCompensationOffsets = source.nutCompensationOffsets
+      .slice(0, STATE_LIMITS.strings.max)
+      .map(value => typeof value === 'number' && Number.isFinite(value)
+        ? clamp(value, STATE_LIMITS.nutCompensationOffset.min, STATE_LIMITS.nutCompensationOffset.max)
+        : 0)
+  }
 
   if (typeof source.selectedPresetId === 'string' && source.selectedPresetId.length <= 100) {
     safe.selectedPresetId = source.selectedPresetId

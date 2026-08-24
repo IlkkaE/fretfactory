@@ -1,6 +1,7 @@
 import type { AppState } from '../types'
 import { computeStringLayout } from './core'
 import { computeCurvedFretsRaw, computeCurvedNutBridge } from './curved'
+import { computeNutCompensationLines } from './nutCompensation'
 import pchipToBezierPath from './pchip'
 
 /** Piirtoalkiot — yhteinen formaatti (preview, export, testit) */
@@ -30,17 +31,17 @@ export const STROKES = {
   FRET:   0.6,
   STRING: 0.8,
   NUT:    1.2,
+  NUT_COMPENSATION: 10,
 }
 
 /** Värit */
 export const COLORS = {
-  edge:   '#000000',
-  fret:   '#000000',
-  string: '#000000',
-  // Use a dark nut/saddle color so they are clearly visible on the light preview background
-  nut:    '#000000',
+  edge:   '#ffffff',
+  fret:   '#ffffff',
+  string: '#ffffff',
+  nut:    '#ffffff',
   // preview-only helpers
-  marker: '#000000',   // ristit (keskimerkit)
+  marker: '#ffffff',   // ristit (keskimerkit)
   ghost:  '#16a34a',   // apuviiva keskellä väliä (ei exporttiin)
 }
 
@@ -78,6 +79,7 @@ export function buildBoard(s: AppState): BuildResult {
   const edgeEls: DrawEl[] = []
   const fretEls: DrawEl[] = []
   const nutBridgeEls: DrawEl[] = []
+  const compensationEls: DrawEl[] = []
 
   // Strings in background
   if (!s.removeStrings) {
@@ -101,7 +103,18 @@ export function buildBoard(s: AppState): BuildResult {
   nutBridgeEls.push({ kind:'path', d:pchipToBezierPath(nb.nut.pts), color:COLORS.nut, w:STROKES.NUT })
   nutBridgeEls.push({ kind:'path', d:pchipToBezierPath(nb.bridge.pts), color:COLORS.nut, w:STROKES.NUT })
 
-  els.push(...stringsEls, ...edgeEls, ...fretEls, ...nutBridgeEls)
+  if (s.showNutCompensation) {
+    for (const line of computeNutCompensationLines(nb, s.strings, s.nutCompensationOffsets)) {
+      if (Math.abs(line.offsetMm) < 1e-6) continue
+      compensationEls.push({
+        kind: 'line', x1: line.nominal.x, y1: line.nominal.y,
+        x2: line.compensated.x, y2: line.compensated.y,
+        color: '#facc15', w: STROKES.NUT_COMPENSATION,
+      })
+    }
+  }
+
+  els.push(...stringsEls, ...edgeEls, ...fretEls, ...nutBridgeEls, ...compensationEls)
 
   // y(x) apuri polylinelle
   const yAtX = (pts: {x:number;y:number}[], x: number): number => {

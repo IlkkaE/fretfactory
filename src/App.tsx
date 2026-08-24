@@ -1,16 +1,14 @@
 import React from 'react'
 import './styles/ui.css'
-import { useIsMobile } from './hooks/useIsMobile'
 import Preview from './components/Preview'
 import Background from './components/Background'
 import ExportGrid from './components/ExportGrid'
 import PresetMenu from './components/PresetMenu'
-import Controls from './components/Controls'
+import Controls, { MarkerControls, NutCompensationControls } from './components/Controls'
 import AdsenseBlock from './components/Adsense'
 import UnitSelector from './components/UnitSelector'
 
 export default function App() {
-  const isMobile = useIsMobile(768)
   // Ensure window/tab title reflects the new app name even during HMR
   React.useEffect(() => { try { document.title = 'FretFactory' } catch {} }, [])
   return (
@@ -18,28 +16,47 @@ export default function App() {
       {/* animated paper.js background */}
       <Background />
   {/* DevGui removed; using new Controls panel */}
-      {/* Two-column desktop: left = preset+controls+export, right = preview */}
-      <div className={`app-grid ${isMobile ? 'cols-1 pad-8' : 'cols-2 pad-16'}` }>
+      <div className="app-grid">
         <div className="owner-credit" aria-label="Sivuston omistaja">
           @ilkka
         </div>
-        {/* LEFT COLUMN */}
-  <div className="grid-1">
-          <UnitSelector />
-          <PresetMenu />
-          <Controls />
-          <ExportGrid />
-        </div>
-        {/* RIGHT COLUMN */}
-        <div>
-          <Preview />
-          {/* Advertising (optional): render only if VITE_GADS_PUBLISHER_ID is set */}
-          {import.meta.env.VITE_GADS_PUBLISHER_ID ? (
-            <div className="mt-8 ad-card">
-              <AdsenseBlock />
+        <main className="panel-grid">
+          <div className="panel-settings">
+            <div className="panel-primary">
+              <div className="panel-quick">
+                <section className="panel-slot panel-units" aria-label="Measurement unit">
+                  <UnitSelector />
+                </section>
+                <section className="panel-slot panel-preset" aria-label="Instrument preset">
+                  <PresetMenu />
+                </section>
+                <section className="panel-slot panel-export" aria-label="Export options">
+                  <ExportGrid />
+                </section>
+              </div>
+              <section className="panel-slot panel-controls" aria-label="Fretboard settings">
+                <Controls />
+              </section>
             </div>
-          ) : null}
-        </div>
+            <div className="panel-secondary">
+              <section className="panel-slot panel-compensation" aria-label="Nut compensation settings">
+                <NutCompensationControls />
+              </section>
+              <section className="panel-slot panel-markers" aria-label="Fretboard marker settings">
+                <MarkerControls />
+              </section>
+            </div>
+          </div>
+          <section className="panel-slot panel-preview" aria-label="Fretboard preview">
+            <Preview />
+            {/* Advertising (optional): render only if VITE_GADS_PUBLISHER_ID is set */}
+            {import.meta.env.VITE_GADS_PUBLISHER_ID ? (
+              <div className="mt-8 ad-card">
+                <AdsenseBlock />
+              </div>
+            ) : null}
+          </section>
+        </main>
       </div>
     </div>
   )

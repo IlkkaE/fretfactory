@@ -5,13 +5,14 @@ import { exportPDFSinglePage } from './exporters'
 const pdf = vi.hoisted(() => ({
   constructorArgs: [] as unknown[][],
   lines: [] as number[][],
+  lineWidths: [] as number[],
   savedAs: [] as string[],
 }))
 
 vi.mock('jspdf', () => ({
   jsPDF: class MockJsPDF {
     constructor(...args: unknown[]) { pdf.constructorArgs.push(args) }
-    setLineWidth() {}
+    setLineWidth(width: number) { pdf.lineWidths.push(width) }
     setDrawColor() {}
     line(...args: number[]) { pdf.lines.push(args) }
     save(filename: string) { pdf.savedAs.push(filename) }
@@ -22,6 +23,7 @@ describe('exportPDFSinglePage', () => {
   beforeEach(() => {
     pdf.constructorArgs.length = 0
     pdf.lines.length = 0
+    pdf.lineWidths.length = 0
     pdf.savedAs.length = 0
   })
 
@@ -44,5 +46,16 @@ describe('exportPDFSinglePage', () => {
     await exportPDFSinglePage({ ...state, removeStrings: true })
 
     expect(pdf.lines).toHaveLength(visibleLineCount - state.strings)
+  })
+
+  it('uses a 1mm line width for red compensation guides', async () => {
+    await exportPDFSinglePage({
+      ...useAppState.getState(),
+      showNutCompensation: true,
+      nutCompensationOffsets: [0.5, 0, 0, 0, 0, 0],
+    })
+
+    expect(pdf.lineWidths).toContain(1)
+    expect(pdf.lineWidths).toContain(25.4 / 72)
   })
 })

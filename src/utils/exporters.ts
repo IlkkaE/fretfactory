@@ -1,6 +1,7 @@
 import { PRESETS } from '../presets/instruments'
 import type { AppState } from '../types'
 import { computeCurvedFretsRaw, computeCurvedNutBridge } from '../geom/curved'
+import { computeNutCompensationLines } from '../geom/nutCompensation'
 import pchipToBezierPath, { pchipToBezierSegments } from '../geom/pchip'
 import { fromMillimeters, getMargin, getUnitAttribute } from './units'
 import { SVG_CONSTANTS, VECTOR_EFFECT } from './svg'
@@ -55,10 +56,14 @@ export function createSVG(s: AppState): { filename: string; content: string } | 
       s.strings, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12,
       s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1
     )
+    const compensation = s.showNutCompensation
+      ? computeNutCompensationLines(nb, s.strings, s.nutCompensationOffsets).filter(line => Math.abs(line.offsetMm) >= 1e-6)
+      : []
 
     let minX = +Infinity, maxX = -Infinity, minY = +Infinity, maxY = -Infinity
     const eat = (p:{x:number,y:number}) => { if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x; if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y }
     rows.forEach(r => r.pts.forEach(eat)); nb.nut.pts.forEach(eat); nb.bridge.pts.forEach(eat)
+    compensation.forEach(line => eat(line.compensated))
     const W = (maxX - minX) + 2 * MARGIN, H = (maxY - minY) + 2 * MARGIN
     const sx = -minX + MARGIN, sy = -minY + MARGIN
 
@@ -86,6 +91,7 @@ export function createSVG(s: AppState): { filename: string; content: string } | 
     const dBr  = pchipToBezierPath(nb.bridge.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))
     drawingElements.push(`<path ${VEC} d="${dNut}" stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
     drawingElements.push(`<path ${VEC} d="${dBr}"  stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
+    compensation.forEach(line => drawingElements.push(`<line ${VEC} x1="${line.nominal.x+sx}" y1="${line.nominal.y+sy}" x2="${line.compensated.x+sx}" y2="${line.compensated.y+sy}" stroke="${C.NUT_COMPENSATION}" stroke-width="${SW.NUT_COMPENSATION}"/>`))
 
     // Fret markers: intersection of guide line with ghost midlines
     const clamp01 = (v:number)=> Math.max(0, Math.min(1, v))
@@ -173,7 +179,7 @@ async function exportPDF(s: AppState, layout: PDFLayout) {
   const baseName = `fretfactory_${presetSlug}_curved_${s.units}`
 
   // Accumulate geometry as line and cubic segments in mm in a [0..W]x[0..H] coordinate space
-  type Seg = { x1:number, y1:number, x2:number, y2:number }
+  type Seg = { x1:number, y1:number, x2:number, y2:number, color?: 'red', widthMm?: number }
   const segs: Seg[] = []
 
   // Flatten a cubic Bezier to polyline segments (for reliable jsPDF rendering)
@@ -210,10 +216,14 @@ async function exportPDF(s: AppState, layout: PDFLayout) {
       s.strings, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12,
       s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1
     )
+    const compensation = s.showNutCompensation
+      ? computeNutCompensationLines(nb, s.strings, s.nutCompensationOffsets).filter(line => Math.abs(line.offsetMm) >= 1e-6)
+      : []
 
     let minX = +Infinity, maxX = -Infinity, minY = +Infinity, maxY = -Infinity
     const eat = (p:{x:number,y:number}) => { if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x; if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y }
     rows.forEach(r => r.pts.forEach(eat)); nb.nut.pts.forEach(eat); nb.bridge.pts.forEach(eat)
+    compensation.forEach(line => eat(line.compensated))
     W = (maxX - minX)
     H = (maxY - minY)
     const sx = -minX, sy = -minY
@@ -246,6 +256,12 @@ async function exportPDF(s: AppState, layout: PDFLayout) {
     for (const c of pchipToBezierSegments(nb.bridge.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))) {
       addCubicAsLines(c.p0.x, c.p0.y, c.c1.x, c.c1.y, c.c2.x, c.c2.y, c.p1.x, c.p1.y)
     }
+    compensation.forEach(line => segs.push({
+      x1: line.nominal.x + sx, y1: line.nominal.y + sy,
+      x2: line.compensated.x + sx, y2: line.compensated.y + sy,
+      color: 'red',
+      widthMm: 1,
+    }))
     // markers as small crosses at guide/ghost intersections
     const clamp01 = (v:number)=> Math.max(0, Math.min(1, v))
     const tGuide = clamp01(((s as any).guidePosPct ?? 50) / 100)
@@ -323,6 +339,8 @@ async function exportPDF(s: AppState, layout: PDFLayout) {
     doc.setLineWidth(lineWidth)
     doc.setDrawColor(0)
     for (const sg of segs) {
+      doc.setDrawColor(sg.color === 'red' ? 239 : 0, sg.color === 'red' ? 68 : 0, sg.color === 'red' ? 68 : 0)
+      doc.setLineWidth(sg.widthMm ?? lineWidth)
       doc.line(
         sg.x1 + pageMargin,
         sg.y1 + pageMargin,
@@ -374,6 +392,8 @@ async function exportPDF(s: AppState, layout: PDFLayout) {
 
       // Draw only segments that intersect this page.
       for (const sg of pageSegments[(yi * xPages) + xi]) {
+        doc.setDrawColor(sg.color === 'red' ? 239 : 0, sg.color === 'red' ? 68 : 0, sg.color === 'red' ? 68 : 0)
+        doc.setLineWidth(sg.widthMm ?? lineWidth)
         doc.line(
           sg.x1 - xOffset,
           sg.y1 - yOffset,

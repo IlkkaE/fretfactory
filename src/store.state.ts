@@ -24,6 +24,10 @@ export const useAppState = create<AppState>()((set, get) => ({
   stringSpanBridge: 49.784, // mm (1.96 in)
   overhang: 3.048,         // mm (0.12 in)
 
+  showNutCompensation: false,
+  nutCompensationOffsets: [0, 0, 0, 0, 0, 0],
+  nutCompensationProfile: 'custom',
+
   // ── merkit (uudet) ────────────────────────────────────────────
   markerFrets: SPEC.marker.defaultFrets.slice(),
   markerSize: SPEC.marker.defaultSizeMm,            // mm
@@ -77,6 +81,8 @@ export const useAppState = create<AppState>()((set, get) => ({
       strings, frets,
       stringSpanNut, stringSpanBridge, overhang,
       scaleTreble, scaleBass, anchorFret, curvedExponent,
+      nutCompensationOffsets: Array.from({ length: strings }, (_, i) => get().nutCompensationOffsets?.[i] ?? 0),
+      nutCompensationProfile: 'custom',
     }, get()))
   },
 }))

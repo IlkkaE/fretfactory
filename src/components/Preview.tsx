@@ -24,7 +24,8 @@ export default function Preview() {
     }
   }, [
   s.mode, s.scaleTreble, s.scaleBass, s.anchorFret, s.curvedExponent,
-  s.strings, s.removeStrings, s.frets, s.stringSpanNut, s.stringSpanBridge, s.overhang
+  s.strings, s.removeStrings, s.frets, s.stringSpanNut, s.stringSpanBridge, s.overhang,
+  s.showNutCompensation, s.nutCompensationOffsets
   ])
 
   const markerEls = useMemo(() => {
@@ -166,7 +167,7 @@ export default function Preview() {
               if (el.kind === 'line') {
                 return (
                   <line key={i} x1={el.x1} y1={el.y1} x2={el.x2} y2={el.y2}
-                    stroke={PREVIEW_STROKE} fill="none"
+                    stroke={el.color || PREVIEW_STROKE} fill="none"
                     vectorEffect="non-scaling-stroke" shapeRendering="geometricPrecision"
                     strokeWidth={el.w}
                     strokeLinecap="butt" />
@@ -175,7 +176,7 @@ export default function Preview() {
               if (el.kind === 'path') {
                 return (
                   <path key={i} d={el.d}
-                    stroke={PREVIEW_STROKE} fill="none"
+                    stroke={el.color || PREVIEW_STROKE} fill="none"
                     vectorEffect="non-scaling-stroke" shapeRendering="geometricPrecision"
                     strokeWidth={el.w}
                     strokeLinecap="butt" />

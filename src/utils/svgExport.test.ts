@@ -17,4 +17,15 @@ describe('createSVG fret layer', () => {
       expect(result.content).toContain(`data-name="Fret ${fret}" inkscape:label="Fret ${fret}"`)
     }
   })
+
+  it('adds only non-zero compensation guides in red', () => {
+    const result = createSVG({
+      ...useAppState.getState(),
+      showNutCompensation: true,
+      nutCompensationOffsets: [0.5, 0, -0.25, 0, 0, 0],
+    })!
+
+    expect((result.content.match(/stroke="#ef4444"/g) ?? [])).toHaveLength(2)
+    expect(result.content).toContain('stroke="#ef4444" stroke-width="1mm"')
+  })
 })
