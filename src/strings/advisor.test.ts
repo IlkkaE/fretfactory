@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { defaultGuitarPitches, pitchFrequency, recommendString, stringScaleLengths, stringTensionLb } from './advisor'
-import { XL_NICKEL_CATALOG_COVERAGE, XL_NICKEL_STRINGS } from './catalog'
+import {
+  defaultBassPitches,
+  defaultGuitarPitches,
+  matchingBalancedBassSet,
+  pitchFrequency,
+  recommendString,
+  recommendStringForProfile,
+  stringScaleLengths,
+  stringTensionLb,
+} from './advisor'
+import { XL_BASS_STRINGS, XL_NICKEL_CATALOG_COVERAGE, XL_NICKEL_STRINGS } from './catalog'
 
 describe('string gauge advisor', () => {
   it('tracks current XL single availability separately from calculable entries', () => {
@@ -40,6 +49,37 @@ describe('string gauge advisor', () => {
     expect(defaultGuitarPitches(8)).toEqual(['F#1', 'B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'])
     expect(defaultGuitarPitches(6)).toEqual(['E2', 'A2', 'D3', 'G3', 'B3', 'E4'])
     expect(defaultGuitarPitches(12)).toEqual(['E2', 'E3', 'A2', 'A3', 'D3', 'D4', 'G3', 'G4', 'B3', 'B3', 'E4', 'E4'])
+  })
+
+  it('uses conventional bass tuning defaults from thickest to thinnest internally', () => {
+    expect(defaultBassPitches(4)).toEqual(['E1', 'A1', 'D2', 'G2'])
+    expect(defaultBassPitches(5)).toEqual(['B0', 'E1', 'A1', 'D2', 'G2'])
+    expect(defaultBassPitches(6)).toEqual(['B0', 'E1', 'A1', 'D2', 'G2', 'C3'])
+  })
+
+  it('reproduces the three published four-string balanced bass sets at 34 inches', () => {
+    const pitches = ['E1', 'A1', 'D2', 'G2']
+    const expected = {
+      loose: [.095, .070, .052, .040],
+      regular: [.105, .080, .060, .045],
+      firm: [.120, .090, .067, .050],
+    } as const
+
+    for (const feel of ['loose', 'regular', 'firm'] as const) {
+      const recommendations = pitches.map(pitch => recommendString(pitch, 34 * 25.4, feel, false, 'bass'))
+      expect(recommendations.map(item => item.match?.gaugeInches)).toEqual(expected[feel])
+      expect(recommendations.every(item => item.family === 'bass' && item.withinFeelBand)).toBe(true)
+      expect(matchingBalancedBassSet(recommendations, pitches, Array(4).fill(34 * 25.4), feel, 'bass')?.item)
+        .toBe(feel === 'loose' ? 'EXL220BT' : feel === 'regular' ? 'EXL170BT' : 'EXL160BT')
+    }
+  })
+
+  it('selects guitar and bass catalogs per string for a custom hybrid', () => {
+    const guitar = recommendStringForProfile('E2', 26 * 25.4, 'regular', 'custom')
+    const bass = recommendStringForProfile('E1', 31 * 25.4, 'regular', 'custom')
+    expect(guitar.family).toBe('guitar')
+    expect(bass.family).toBe('bass')
+    expect(XL_BASS_STRINGS.length).toBe(29)
   })
 
   it('returns no verified match outside the catalog range', () => {

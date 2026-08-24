@@ -8,7 +8,7 @@ import {
 	estimateGeneralNutCompensation,
 	supportsGeneralNutCompensationProfile,
 } from '../geom/nutCompensationProfile'
-import { defaultGuitarPitches } from '../strings/advisor'
+import { defaultBassPitches, defaultGuitarPitches } from '../strings/advisor'
 
 function Num({ label, value, onChange, step=0.1, min, max, suffix }:{
 	label: string
@@ -62,7 +62,9 @@ export default function Controls() {
 			strings,
 			nutCompensationOffsets: Array.from({ length: strings }, (_, i) => s.nutCompensationOffsets?.[i] ?? 0),
 			nutCompensationProfile: 'custom',
-			stringPitches: defaultGuitarPitches(strings),
+			stringPitches: s.stringAdvisorProfile === 'bass'
+				? defaultBassPitches(strings)
+				: defaultGuitarPitches(strings),
 		})
 	}
 	return (

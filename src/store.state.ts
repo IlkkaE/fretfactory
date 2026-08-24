@@ -4,7 +4,7 @@ import { PRESETS } from './presets/instruments'
 import type { AppState } from './types'
 import { toMillimeters } from './utils/units'
 import { sanitizeStatePatch } from './utils/stateValidation'
-import { defaultGuitarPitches } from './strings/advisor'
+import { defaultBassPitches, defaultGuitarPitches } from './strings/advisor'
 
 export const useAppState = create<AppState>()((set, get) => ({
   // perus
@@ -30,6 +30,7 @@ export const useAppState = create<AppState>()((set, get) => ({
   nutCompensationProfile: 'custom',
   stringPitches: defaultGuitarPitches(6),
   stringFeel: 'regular',
+  stringAdvisorProfile: 'custom',
   preferWoundG3: false,
 
   // ── merkit (uudet) ────────────────────────────────────────────
@@ -78,6 +79,7 @@ export const useAppState = create<AppState>()((set, get) => ({
     }
     const anchorFret = p.anchorFret ?? SPEC.curved.defaultAnchorFret
     const curvedExponent = p.curvedExponent ?? SPEC.curved.defaultExponent
+    const stringAdvisorProfile = p.instrumentFamily === 'bass' ? 'bass' : 'guitar'
 
     set(sanitizeStatePatch({
       selectedPresetId: id,
@@ -87,7 +89,10 @@ export const useAppState = create<AppState>()((set, get) => ({
       scaleTreble, scaleBass, anchorFret, curvedExponent,
       nutCompensationOffsets: Array.from({ length: strings }, (_, i) => get().nutCompensationOffsets?.[i] ?? 0),
       nutCompensationProfile: 'custom',
-      stringPitches: defaultGuitarPitches(strings),
+      stringAdvisorProfile,
+      stringPitches: stringAdvisorProfile === 'bass'
+        ? defaultBassPitches(strings)
+        : defaultGuitarPitches(strings),
     }, get()))
   },
 }))

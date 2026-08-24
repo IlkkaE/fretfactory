@@ -24,11 +24,18 @@ describe('parseHash', () => {
     expect(parseHash(hash({
       stringPitches: ['B1', 'E2', 'A2'],
       stringFeel: 'loose',
+      stringAdvisorProfile: 'bass',
       preferWoundG3: true,
     }))).toEqual({
       stringPitches: ['B1', 'E2', 'A2'],
       stringFeel: 'loose',
+      stringAdvisorProfile: 'bass',
       preferWoundG3: true,
     })
+  })
+
+  it('preserves a known preset id so its advisor profile survives reloads', () => {
+    expect(parseHash(hash({ selectedPresetId: 'fender-precision' })))
+      .toEqual({ selectedPresetId: 'fender-precision' })
   })
 })

@@ -1,10 +1,12 @@
 export type StringConstruction = 'plain' | 'wound'
+export type StringFamily = 'guitar' | 'bass'
 
 export type CatalogString = {
   item: string
   gaugeInches: number
   unitWeightLbPerInch: number
   construction: StringConstruction
+  family: StringFamily
   evidence: 'published-unit-weight' | 'derived-plain-steel' | 'derived-published-tension'
 }
 
@@ -98,8 +100,83 @@ export const XL_NICKEL_STRINGS: CatalogString[] = [
   gaugeInches: gaugeInches as number,
   unitWeightLbPerInch: unitWeightLbPerInch as number,
   construction: construction as StringConstruction,
+  family: 'guitar',
   evidence: (evidence ?? 'published-unit-weight') as CatalogString['evidence'],
 }))
+
+export const XL_BASS_CATALOG_SOURCE = XL_NICKEL_CATALOG_SOURCE
+export const XL_BASS_AVAILABILITY_SOURCE =
+  'https://www.daddario.com/products/xl-nickel-round-wound-singles'
+
+// Long-scale XL bass singles. The three balanced-set gauges use unit weights
+// derived from D'Addario's current per-string tension tables at 34 inches.
+// Other entries retain the published unit weights from tension chart 13934.
+export const XL_BASS_STRINGS: CatalogString[] = [
+  ['XLB018P', .018, .00007265, 'plain'],
+  ['XLB020P', .020, .00009093, 'plain'],
+  ['XLB028W', .028, .00015433, 'wound'],
+  ['XLB032', .032, .00019000, 'wound'],
+  ['XLB035', .035, .00022362, 'wound'],
+  ['XLB040', .040, .00028192, 'wound', 'derived-published-tension'],
+  ['XLB042', .042, .00032252, 'wound'],
+  ['XLB045', .045, .00036980, 'wound', 'derived-published-tension'],
+  ['XLB050', .050, .00043767, 'wound', 'derived-published-tension'],
+  ['XLB052', .052, .00051322, 'wound'],
+  ['XLB055', .055, .00053798, 'wound', 'derived-published-tension'],
+  ['XLB060', .060, .00063410, 'wound', 'derived-published-tension'],
+  ['XLB065', .065, .00079569, 'wound'],
+  ['XLB067', .067, .00079224, 'wound', 'derived-published-tension'],
+  ['XLB070', .070, .00086188, 'wound', 'derived-published-tension'],
+  ['XLB075', .075, .00104973, 'wound'],
+  ['XLB080', .080, .00110774, 'wound', 'derived-published-tension'],
+  ['XLB085', .085, .00133702, 'wound'],
+  ['XLB090', .090, .00140885, 'wound', 'derived-published-tension'],
+  ['XLB095', .095, .00156031, 'wound', 'derived-published-tension'],
+  ['XLB100', .100, .00179687, 'wound'],
+  ['XLB105', .105, .00198395, 'wound'],
+  ['XLB107', .107, .00193932, 'wound', 'derived-published-tension'],
+  ['XLB110', .110, .00227440, 'wound'],
+  ['XLB120', .120, .00242168, 'wound', 'derived-published-tension'],
+  ['XLB125', .125, .00274810, 'wound'],
+  ['XLB130', .130, .00301941, 'wound'],
+  ['XLB135', .135, .00315944, 'wound'],
+  ['XLB145', .145, .00363204, 'wound'],
+].map(([item, gaugeInches, unitWeightLbPerInch, construction, evidence]) => ({
+  item: item as string,
+  gaugeInches: gaugeInches as number,
+  unitWeightLbPerInch: unitWeightLbPerInch as number,
+  construction: construction as StringConstruction,
+  family: 'bass',
+  evidence: (evidence ?? 'published-unit-weight') as CatalogString['evidence'],
+}))
+
+export type BalancedBassSet = {
+  item: string
+  label: string
+  gaugesBassToTreble: readonly number[]
+  source: string
+}
+
+export const XL_BALANCED_BASS_SETS: Record<'loose' | 'regular' | 'firm', BalancedBassSet> = {
+  loose: {
+    item: 'EXL220BT',
+    label: '40–95 Super Light Balanced Tension',
+    gaugesBassToTreble: [.095, .070, .055, .040],
+    source: 'https://www.daddario.com/products/exl220bt-xl-nickel-wound-bass-guitar-strings-balanced-tension-super-light-40-95-long-scale',
+  },
+  regular: {
+    item: 'EXL170BT',
+    label: '45–107 Regular Light Balanced Tension',
+    gaugesBassToTreble: [.107, .080, .060, .045],
+    source: 'https://www.daddario.com/products/exl170bt-xl-nickel-wound-balanced-tension-bass-guitar-strings-regular-light-45-107-long-scale',
+  },
+  firm: {
+    item: 'EXL160BT',
+    label: '50–120 Medium Balanced Tension',
+    gaugesBassToTreble: [.120, .090, .067, .050],
+    source: 'https://www.daddario.com/products/exl160bt-xl-nickel-wound-bass-guitar-strings-balanced-tension-medium-50-120-long-scale',
+  },
+}
 
 export const XL_NICKEL_CATALOG_COVERAGE = {
   available: XL_NICKEL_AVAILABLE_GAUGES.plain.length + XL_NICKEL_AVAILABLE_GAUGES.wound.length,

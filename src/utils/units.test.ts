@@ -70,4 +70,13 @@ describe('preset units', () => {
 
     keys.forEach(key => expect(after[key]).toBe(before[key]))
   })
+
+  test('a bass preset selects the bass catalog and standard bass tuning', () => {
+    useAppState.getState().applyPreset('fender-precision')
+    const state = useAppState.getState()
+
+    expect(state.stringAdvisorProfile).toBe('bass')
+    expect(state.stringPitches).toEqual(['E1', 'A1', 'D2', 'G2'])
+    expect(state.scaleBass).toBeCloseTo(34 * MM_PER_INCH, 10)
+  })
 })

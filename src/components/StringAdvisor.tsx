@@ -3,11 +3,14 @@ import { useAppState } from '../store.state'
 import type { StringFeel } from '../types'
 import {
   FEEL_LABELS,
+  matchingBalancedBassSet,
   NOTE_NAMES,
-  recommendString,
+  recommendStringForProfile,
   stringScaleLengths,
 } from '../strings/advisor'
 import {
+  XL_BASS_AVAILABILITY_SOURCE,
+  XL_BASS_STRINGS,
   XL_NICKEL_AVAILABILITY_SOURCE,
   XL_NICKEL_CATALOG_COVERAGE,
   XL_NICKEL_CATALOG_SOURCE,
@@ -49,9 +52,20 @@ export default function StringAdvisor() {
   ), [s.strings, s.scaleTreble, s.scaleBass, s.curvedExponent])
   const pitches = Array.from({ length: s.strings }, (_, index) => s.stringPitches[index] ?? 'E2')
   const recommendations = pitches.map((pitch, index) =>
-    recommendString(pitch, scales[index], s.stringFeel, s.preferWoundG3))
-  const profileUnsupported = Math.max(...scales) > 30 * 25.4
+    recommendStringForProfile(pitch, scales[index], s.stringFeel, s.stringAdvisorProfile, s.preferWoundG3))
+  const packagedSet = matchingBalancedBassSet(
+    recommendations,
+    pitches,
+    scales,
+    s.stringFeel,
+    s.stringAdvisorProfile,
+  )
   const displayIndices = Array.from({ length: s.strings }, (_, displayIndex) => s.strings - 1 - displayIndex)
+  const familyLabel = s.stringAdvisorProfile === 'bass'
+    ? 'D’Addario XL Nickel Bass'
+    : s.stringAdvisorProfile === 'guitar'
+      ? 'D’Addario XL Nickel Guitar'
+      : 'Custom set'
 
   const setPitchPart = (index: number, part: 'note' | 'octave', value: string | number) => {
     const current = splitPitch(pitches[index])
@@ -71,15 +85,15 @@ export default function StringAdvisor() {
         <span className="help-tooltip">
           <button type="button" className="help-button" aria-label="String advisor limitations" aria-describedby="string-advisor-help">?</button>
           <span id="string-advisor-help" className="help-tooltip-content help-tooltip-right" role="tooltip">
-            Each feel maps to one target open-string tension. The calculator solves the ideal unit weight for every pitch and scale, then chooses the nearest catalog gauge. An ±8% band is used as a practical matching tolerance, not a physical law. Equal calculated tension does not guarantee identical feel.
+            Presets select a guitar or bass catalog automatically. Custom instruments may mix both catalogs per string: guitar is preferred below 30 in and bass at or above it, with an overlap fallback from 28.5–31 in. Each feel maps to one target tension for the selected family. An ±8% band is practical guidance, not a physical law, and calculated tension does not guarantee identical feel or product fit.
           </span>
         </span>
       </div>
 
       <label className="label">
         String family
-        <select className="select" value="xl-nickel" disabled aria-label="String family">
-          <option value="xl-nickel">D’Addario XL Nickel · plain / round wound</option>
+        <select className="select" value={s.stringAdvisorProfile} disabled aria-label="String family">
+          <option value={s.stringAdvisorProfile}>{familyLabel}</option>
         </select>
       </label>
       <label className="label">
@@ -90,17 +104,21 @@ export default function StringAdvisor() {
           ))}
         </select>
       </label>
-      <label className="row-1fr-auto text small string-option-row">
-        <span>Prefer a wound G3</span>
-        <input type="checkbox" checked={s.preferWoundG3} onChange={event => set({ preferWoundG3: event.target.checked })} />
-      </label>
-      {profileUnsupported && (
-        <div className="string-fit-warning" role="note">
-          This scale exceeds the 30 in electric-guitar profile. Bass strings use different constructions and substantially different feel targets, so this version does not make a gauge recommendation.
-        </div>
-      )}
+      {s.stringAdvisorProfile !== 'bass' && <label className="row-1fr-auto text small string-option-row">
+          <span>Prefer a wound G3</span>
+          <input type="checkbox" checked={s.preferWoundG3} onChange={event => set({ preferWoundG3: event.target.checked })} />
+        </label>}
 
-      {!profileUnsupported && <div className="string-list" role="table" aria-label="String gauge recommendations">
+      <div className={`string-set-summary ${packagedSet ? 'string-set-available' : ''}`} aria-live="polite">
+        <span>{packagedSet ? 'Available set' : 'Set type'}</span>
+        {packagedSet ? (
+          <a href={packagedSet.source} target="_blank" rel="noreferrer">
+            <strong>{packagedSet.item}</strong> · {packagedSet.label}
+          </a>
+        ) : <strong>Custom set</strong>}
+      </div>
+
+      <div className="string-list" role="table" aria-label="String gauge recommendations">
         {displayIndices.map((internalIndex, displayIndex) => {
           const recommendation = recommendations[internalIndex]
           const pitch = splitPitch(pitches[internalIndex])
@@ -125,7 +143,7 @@ export default function StringAdvisor() {
                   <>
                     <div className="string-gauge">
                       {gaugeLabel(recommendation.match.gaugeInches)}
-                      <span>{recommendation.match.construction}{recommendation.match.evidence === 'published-unit-weight' ? '' : ' · derived'}</span>
+                      <span>{recommendation.match.family} · {recommendation.match.construction}{recommendation.match.evidence === 'published-unit-weight' ? '' : ' · derived'}</span>
                     </div>
                     <div className={`string-status ${status?.className}`}>{status?.label}</div>
                     <div className="string-alternatives">
@@ -139,9 +157,9 @@ export default function StringAdvisor() {
             </div>
           )
         })}
-      </div>}
+      </div>
       <div className="caption-small string-advisor-footnote">
-        Suggestions are starting points, not product-fit guarantees. {XL_NICKEL_CATALOG_COVERAGE.calculable} tension entries from {XL_NICKEL_CATALOG_COVERAGE.available} currently listed single gauges. Sources: <a href={XL_NICKEL_CATALOG_SOURCE} target="_blank" rel="noreferrer">{XL_NICKEL_CATALOG_VERSION}</a> and <a href={XL_NICKEL_AVAILABILITY_SOURCE} target="_blank" rel="noreferrer">current singles</a>. “Derived” values are calculated from published plain-steel dimensions or a published tension value.
+        Suggestions are starting points, not product-fit guarantees. The snapshot contains {XL_NICKEL_CATALOG_COVERAGE.calculable} guitar and {XL_BASS_STRINGS.length} long-scale bass tension entries. Sources: <a href={XL_NICKEL_CATALOG_SOURCE} target="_blank" rel="noreferrer">{XL_NICKEL_CATALOG_VERSION}</a>, <a href={XL_NICKEL_AVAILABILITY_SOURCE} target="_blank" rel="noreferrer">current guitar singles</a> and <a href={XL_BASS_AVAILABILITY_SOURCE} target="_blank" rel="noreferrer">current bass singles</a>. “Derived” values come from published dimensions or tension. Bass product fit also depends on winding length and bridge layout.
       </div>
     </div>
   )

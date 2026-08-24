@@ -11,6 +11,7 @@ export default function PresetMenu() {
   const onChange: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
     const id = e.target.value
     if (id) applyPreset(id)
+    else set({ selectedPresetId: undefined, stringAdvisorProfile: 'custom' })
   }
 
   const abbr = (name?: string) => {
