@@ -40,4 +40,16 @@ describe('sanitizeStatePatch', () => {
     expect(sanitizeStatePatch({ removeStrings: true })).toEqual({ removeStrings: true })
     expect(sanitizeStatePatch({ removeStrings: 'true' })).toEqual({})
   })
+
+  it('validates string-advisor state', () => {
+    expect(sanitizeStatePatch({
+      stringFeel: 'firm',
+      preferWoundG3: true,
+      stringPitches: ['E2', 'H9', 'A2', 42],
+    })).toEqual({
+      stringFeel: 'firm',
+      preferWoundG3: true,
+      stringPitches: ['E2', 'A2'],
+    })
+  })
 })

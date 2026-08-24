@@ -74,6 +74,15 @@ export function sanitizeStatePatch(
   }
 
   if (typeof source.showGhostHelpers === 'boolean') safe.showGhostHelpers = source.showGhostHelpers
+  if (source.stringFeel === 'loose' || source.stringFeel === 'regular' || source.stringFeel === 'firm') {
+    safe.stringFeel = source.stringFeel
+  }
+  if (typeof source.preferWoundG3 === 'boolean') safe.preferWoundG3 = source.preferWoundG3
+  if (Array.isArray(source.stringPitches)) {
+    safe.stringPitches = source.stringPitches
+      .slice(0, STATE_LIMITS.strings.max)
+      .filter((value): value is string => typeof value === 'string' && /^[A-G]#?-?\d$/.test(value))
+  }
   if (typeof source.showNutCompensation === 'boolean') safe.showNutCompensation = source.showNutCompensation
   if (source.nutCompensationProfile === 'custom' || source.nutCompensationProfile === 'general-electric-guitar') {
     safe.nutCompensationProfile = source.nutCompensationProfile

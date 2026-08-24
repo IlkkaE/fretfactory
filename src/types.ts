@@ -1,6 +1,7 @@
 // Perustyypit
 export type Units = 'mm' | 'inch'
 export type Mode = 'curved'
+export type StringFeel = 'loose' | 'regular' | 'firm'
 
 // App-tila
 export type AppState = {
@@ -26,6 +27,11 @@ export type AppState = {
   showNutCompensation: boolean
   nutCompensationOffsets: number[]
   nutCompensationProfile: 'custom' | 'general-electric-guitar'
+
+  // Electric-guitar string advisor. Pitches run bass to treble.
+  stringPitches: string[]
+  stringFeel: StringFeel
+  preferWoundG3: boolean
 
   // ── uutta: otelautamerkkien tila ──────────────────────────────
   markerFrets: number[]     // missä väleissä merkit

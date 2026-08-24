@@ -19,4 +19,16 @@ describe('parseHash', () => {
     expect(parseHash(hash({ set: null, unknown: true }))).toBeNull()
     expect(parseHash(`#state=${'x'.repeat(12_001)}`)).toBeNull()
   })
+
+  it('keeps validated string-advisor settings', () => {
+    expect(parseHash(hash({
+      stringPitches: ['B1', 'E2', 'A2'],
+      stringFeel: 'loose',
+      preferWoundG3: true,
+    }))).toEqual({
+      stringPitches: ['B1', 'E2', 'A2'],
+      stringFeel: 'loose',
+      preferWoundG3: true,
+    })
+  })
 })
