@@ -1,4 +1,5 @@
 import type { AppState } from '../types'
+import { PRESETS } from '../presets/instruments'
 
 export const STATE_LIMITS = {
   strings: { min: 1, max: 12 },
@@ -74,8 +75,22 @@ export function sanitizeStatePatch(
   }
 
   if (typeof source.showGhostHelpers === 'boolean') safe.showGhostHelpers = source.showGhostHelpers
+  if (source.stringFeel === 'loose' || source.stringFeel === 'regular' || source.stringFeel === 'firm') {
+    safe.stringFeel = source.stringFeel
+  }
+  if (source.stringAdvisorProfile === 'custom' || source.stringAdvisorProfile === 'guitar' || source.stringAdvisorProfile === 'bass') {
+    safe.stringAdvisorProfile = source.stringAdvisorProfile
+  }
+  if (typeof source.preferWoundG3 === 'boolean') safe.preferWoundG3 = source.preferWoundG3
+  if (Array.isArray(source.stringPitches)) {
+    safe.stringPitches = source.stringPitches
+      .slice(0, STATE_LIMITS.strings.max)
+      .filter((value): value is string => typeof value === 'string' && /^[A-G]#?-?\d$/.test(value))
+  }
   if (typeof source.showNutCompensation === 'boolean') safe.showNutCompensation = source.showNutCompensation
-  if (source.nutCompensationProfile === 'custom' || source.nutCompensationProfile === 'general-electric-guitar') {
+  if (source.nutCompensationProfile === 'custom'
+    || source.nutCompensationProfile === 'general-electric-guitar'
+    || source.nutCompensationProfile === 'general-electric-bass') {
     safe.nutCompensationProfile = source.nutCompensationProfile
   }
   if (Array.isArray(source.nutCompensationOffsets)) {
@@ -86,7 +101,7 @@ export function sanitizeStatePatch(
         : 0)
   }
 
-  if (typeof source.selectedPresetId === 'string' && source.selectedPresetId.length <= 100) {
+  if (typeof source.selectedPresetId === 'string' && PRESETS.some(preset => preset.id === source.selectedPresetId)) {
     safe.selectedPresetId = source.selectedPresetId
   } else if (hasOwn(source, 'selectedPresetId') && source.selectedPresetId == null) {
     safe.selectedPresetId = undefined

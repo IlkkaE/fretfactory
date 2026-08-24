@@ -5,9 +5,12 @@ import { SPEC } from '../spec'
 import { fromDisplayLength, fromMillimeters, toDisplayLength, unitLabel } from '../utils/units'
 import { STATE_LIMITS } from '../utils/stateValidation'
 import {
+	estimateBassNutCompensation,
 	estimateGeneralNutCompensation,
+	supportsBassNutCompensationProfile,
 	supportsGeneralNutCompensationProfile,
 } from '../geom/nutCompensationProfile'
+import { defaultBassPitches, defaultGuitarPitches } from '../strings/advisor'
 
 function Num({ label, value, onChange, step=0.1, min, max, suffix }:{
 	label: string
@@ -61,6 +64,9 @@ export default function Controls() {
 			strings,
 			nutCompensationOffsets: Array.from({ length: strings }, (_, i) => s.nutCompensationOffsets?.[i] ?? 0),
 			nutCompensationProfile: 'custom',
+			stringPitches: s.stringAdvisorProfile === 'bass'
+				? defaultBassPitches(strings)
+				: defaultGuitarPitches(strings),
 		})
 	}
 	return (
@@ -94,17 +100,22 @@ export function NutCompensationControls() {
 		offsets[index] = fromDisplayLength(value, s.units)
 		set({ nutCompensationOffsets: offsets, nutCompensationProfile: 'custom' })
 	}
-	const canApplyGeneralProfile = supportsGeneralNutCompensationProfile(s.strings)
+	const isBassProfile = s.stringAdvisorProfile === 'bass'
+	const estimatedProfile = isBassProfile ? 'general-electric-bass' : 'general-electric-guitar'
+	const canApplyGeneralProfile = isBassProfile
+		? supportsBassNutCompensationProfile(s.strings)
+		: supportsGeneralNutCompensationProfile(s.strings)
 	const applyGeneralCompensation = () => {
 		if (!s.scaleTreble || !s.scaleBass) return
-		const offsets = estimateGeneralNutCompensation(
-			s.strings, s.scaleTreble, s.scaleBass, s.curvedExponent ?? 1,
-		)
+		const estimate = isBassProfile
+			? estimateBassNutCompensation
+			: estimateGeneralNutCompensation
+		const offsets = estimate(s.strings, s.scaleTreble, s.scaleBass, s.curvedExponent ?? 1)
 		if (!offsets) return
 		set({
 			showNutCompensation: true,
 			nutCompensationOffsets: offsets,
-			nutCompensationProfile: 'general-electric-guitar',
+			nutCompensationProfile: estimatedProfile,
 		})
 	}
 
@@ -116,7 +127,7 @@ export function NutCompensationControls() {
 					<span className="help-tooltip">
 						<button type="button" className="help-button" aria-label="Compensated nut limitations" aria-describedby="nut-compensation-help">?</button>
 						<span id="nut-compensation-help" className="help-tooltip-content" role="tooltip">
-							Experimental estimate for 6–8-string electric guitars. Assumes a conventional string set, standard-style tuning and typical first-fret action. It does not account for exact string construction, setup or fretting pressure. Verify and adjust before manufacturing.
+							Experimental estimate for 6–8-string electric guitars or 4–6-string electric basses. Bass defaults use a published uniform first-fret setback. Exact string construction, setup and fretting pressure are not included. Verify and adjust before manufacturing.
 						</span>
 					</span>
 				</div>
@@ -124,19 +135,19 @@ export function NutCompensationControls() {
 				<button type="button" className="btn btn-block" onClick={applyGeneralCompensation} disabled={!canApplyGeneralProfile}>
 					Use estimated defaults
 				</button>
-				{s.nutCompensationProfile !== 'general-electric-guitar' && (
+				{s.nutCompensationProfile !== estimatedProfile && canApplyGeneralProfile && (
 					<div className="caption-small">
-						{canApplyGeneralProfile
-							? 'Uses the current per-string scale lengths. All values remain editable.'
-							: 'Estimated defaults are available for 6–8-string electric guitars.'}
+						Uses the current per-string scale lengths. All values remain editable.
 					</div>
 				)}
-				{s.showNutCompensation && Array.from({ length: s.strings }, (_, i) => (
-					<Num key={i} label={`String ${i + 1}${i === 0 ? ' (bass)' : i === s.strings - 1 ? ' (treble)' : ''} offset (+ toward bridge)`}
-						value={displayCompensation(s.nutCompensationOffsets?.[i] ?? 0)}
-						onChange={setNutCompensation(i)} step={s.units === 'inch' ? 0.0001 : 0.01}
+				{s.showNutCompensation && Array.from({ length: s.strings }, (_, displayIndex) => {
+					const internalIndex = s.strings - 1 - displayIndex
+					const stringNumber = displayIndex + 1
+					return <Num key={internalIndex} label={`String ${stringNumber}${displayIndex === 0 ? ' (treble)' : displayIndex === s.strings - 1 ? ' (bass)' : ''} offset (+ toward bridge)`}
+						value={displayCompensation(s.nutCompensationOffsets?.[internalIndex] ?? 0)}
+						onChange={setNutCompensation(internalIndex)} step={s.units === 'inch' ? 0.0001 : 0.01}
 						min={displayLimit(-5)} max={displayLimit(5)} suffix={lengthSuffix} />
-				))}
+				})}
 			</div>
 		</div>
 	)

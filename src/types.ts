@@ -1,6 +1,8 @@
 // Perustyypit
 export type Units = 'mm' | 'inch'
 export type Mode = 'curved'
+export type StringFeel = 'loose' | 'regular' | 'firm'
+export type StringAdvisorProfile = 'custom' | 'guitar' | 'bass'
 
 // App-tila
 export type AppState = {
@@ -25,7 +27,14 @@ export type AppState = {
   // Per-string offset from the nominal nut contact point toward the bridge.
   showNutCompensation: boolean
   nutCompensationOffsets: number[]
-  nutCompensationProfile: 'custom' | 'general-electric-guitar'
+  nutCompensationProfile: 'custom' | 'general-electric-guitar' | 'general-electric-bass'
+
+  // String advisor. Pitches run bass to treble; the profile is selected by a
+  // preset or uses per-string family selection for custom instruments.
+  stringPitches: string[]
+  stringFeel: StringFeel
+  stringAdvisorProfile: StringAdvisorProfile
+  preferWoundG3: boolean
 
   // ── uutta: otelautamerkkien tila ──────────────────────────────
   markerFrets: number[]     // missä väleissä merkit

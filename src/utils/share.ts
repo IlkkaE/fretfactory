@@ -9,6 +9,8 @@ const SHAREABLE_KEYS = new Set([
   'markerFrets', 'markerSize', 'radiusNut', 'radiusBridge',
   'showNutCompensation', 'nutCompensationOffsets',
   'nutCompensationProfile',
+  'stringPitches', 'stringFeel', 'stringAdvisorProfile', 'preferWoundG3',
+  'selectedPresetId',
 ])
 
 // Keys kept small if we ever switch to query params; for now JSON in hash
@@ -19,6 +21,8 @@ export type ShareState = Partial<Pick<AppState,
   | 'markerFrets' | 'markerSize' | 'radiusNut' | 'radiusBridge'
   | 'showNutCompensation' | 'nutCompensationOffsets'
   | 'nutCompensationProfile'
+  | 'stringPitches' | 'stringFeel' | 'stringAdvisorProfile' | 'preferWoundG3'
+  | 'selectedPresetId'
 >>
 
 export function pickShareableState(s: AppState): ShareState {
@@ -43,6 +47,11 @@ export function pickShareableState(s: AppState): ShareState {
     showNutCompensation: s.showNutCompensation,
     nutCompensationOffsets: s.nutCompensationOffsets,
     nutCompensationProfile: s.nutCompensationProfile,
+    stringPitches: s.stringPitches,
+    stringFeel: s.stringFeel,
+    stringAdvisorProfile: s.stringAdvisorProfile,
+    preferWoundG3: s.preferWoundG3,
+    selectedPresetId: s.selectedPresetId,
   }
 }
 

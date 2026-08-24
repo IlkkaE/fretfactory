@@ -1,6 +1,7 @@
 // Local type for preset entries; avoids importing from types.ts
 export type PresetInstrument = {
   id: string
+  instrumentFamily?: 'guitar' | 'bass'
   manufacturer?: string
   model: string
   artist?: string
@@ -465,6 +466,7 @@ export const PRESETS: PresetInstrument[] = [
   // ---------------- B A S S E S ----------------
   {
     id: 'fender-precision',
+    instrumentFamily: 'bass',
     manufacturer: 'Fender',
     model: 'Precision Bass',
     artist: 'James Jamerson',
@@ -479,6 +481,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'fender-jazz-bass',
+    instrumentFamily: 'bass',
     manufacturer: 'Fender',
     model: 'Jazz Bass',
     artist: 'Jaco Pastorius',
@@ -493,6 +496,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'rickenbacker-4001',
+    instrumentFamily: 'bass',
     manufacturer: 'Rickenbacker',
     model: '4001',
     artist: 'Paul McCartney / Chris Squire',
@@ -507,6 +511,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'musicman-stingray',
+    instrumentFamily: 'bass',
     manufacturer: 'Music Man',
     model: 'StingRay',
     artist: 'Bernard Edwards / Flea',
@@ -521,6 +526,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'hofner-violin-bass',
+    instrumentFamily: 'bass',
     manufacturer: 'Höfner',
     model: '500/1 Violin Bass',
     artist: 'Paul McCartney',
@@ -535,6 +541,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'gibson-thunderbird',
+    instrumentFamily: 'bass',
     manufacturer: 'Gibson',
     model: 'Thunderbird',
     artist: 'Nikki Sixx',
@@ -549,6 +556,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'dingwall-ng2',
+    instrumentFamily: 'bass',
     manufacturer: 'Dingwall',
     model: 'NG-2 (5-string, multi-scale)',
     artist: 'Adam “Nolly” Getgood',
@@ -564,6 +572,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'warwick-thumb',
+    instrumentFamily: 'bass',
     manufacturer: 'Warwick',
     model: 'Thumb BO',
     introduced: 1985,
@@ -577,6 +586,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'spector-ns2',
+    instrumentFamily: 'bass',
     manufacturer: 'Spector',
     model: 'NS-2',
     introduced: 1979,
@@ -590,6 +600,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'yamaha-bb',
+    instrumentFamily: 'bass',
     manufacturer: 'Yamaha',
     model: 'BB (esim. BBP34)',
     introduced: 1977,
@@ -603,6 +614,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'fender-mustang-bass',
+    instrumentFamily: 'bass',
     manufacturer: 'Fender',
     model: 'Mustang Bass',
     introduced: 1966,
@@ -616,6 +628,7 @@ export const PRESETS: PresetInstrument[] = [
   },
   {
     id: 'ibanez-sr505',
+    instrumentFamily: 'bass',
     manufacturer: 'Ibanez',
     model: 'SR505 (5-string)',
     introduced: 2000,

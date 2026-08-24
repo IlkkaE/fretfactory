@@ -19,4 +19,27 @@ describe('parseHash', () => {
     expect(parseHash(hash({ set: null, unknown: true }))).toBeNull()
     expect(parseHash(`#state=${'x'.repeat(12_001)}`)).toBeNull()
   })
+
+  it('keeps validated string-advisor settings', () => {
+    expect(parseHash(hash({
+      stringPitches: ['B1', 'E2', 'A2'],
+      stringFeel: 'loose',
+      stringAdvisorProfile: 'bass',
+      nutCompensationProfile: 'general-electric-bass',
+      nutCompensationOffsets: [0.7, 0.6, 0.5],
+      preferWoundG3: true,
+    }))).toEqual({
+      stringPitches: ['B1', 'E2', 'A2'],
+      stringFeel: 'loose',
+      stringAdvisorProfile: 'bass',
+      nutCompensationProfile: 'general-electric-bass',
+      nutCompensationOffsets: [0.7, 0.6, 0.5],
+      preferWoundG3: true,
+    })
+  })
+
+  it('preserves a known preset id so its advisor profile survives reloads', () => {
+    expect(parseHash(hash({ selectedPresetId: 'fender-precision' })))
+      .toEqual({ selectedPresetId: 'fender-precision' })
+  })
 })
