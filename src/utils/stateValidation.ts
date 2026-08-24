@@ -88,7 +88,9 @@ export function sanitizeStatePatch(
       .filter((value): value is string => typeof value === 'string' && /^[A-G]#?-?\d$/.test(value))
   }
   if (typeof source.showNutCompensation === 'boolean') safe.showNutCompensation = source.showNutCompensation
-  if (source.nutCompensationProfile === 'custom' || source.nutCompensationProfile === 'general-electric-guitar') {
+  if (source.nutCompensationProfile === 'custom'
+    || source.nutCompensationProfile === 'general-electric-guitar'
+    || source.nutCompensationProfile === 'general-electric-bass') {
     safe.nutCompensationProfile = source.nutCompensationProfile
   }
   if (Array.isArray(source.nutCompensationOffsets)) {

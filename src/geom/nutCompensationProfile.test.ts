@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  estimateBassNutCompensation,
   estimateGeneralNutCompensation,
+  supportsBassNutCompensationProfile,
   supportsGeneralNutCompensationProfile,
 } from './nutCompensationProfile'
 
@@ -29,5 +31,24 @@ describe('general nut compensation profile', () => {
     expect(supportsGeneralNutCompensationProfile(5)).toBe(false)
     expect(supportsGeneralNutCompensationProfile(9)).toBe(false)
     expect(estimateGeneralNutCompensation(12, 647.7, 647.7)).toBeNull()
+  })
+})
+
+describe('bass nut compensation profile', () => {
+  it('applies the published 1.4112% first-fret setback at 34 inches', () => {
+    expect(estimateBassNutCompensation(4, 863.6, 863.6)).toEqual([
+      0.684, 0.684, 0.684, 0.684,
+    ])
+  })
+
+  it('supports four through six strings and each string scale in a fan', () => {
+    expect(supportsBassNutCompensationProfile(4)).toBe(true)
+    expect(supportsBassNutCompensationProfile(6)).toBe(true)
+    expect(supportsBassNutCompensationProfile(3)).toBe(false)
+    expect(supportsBassNutCompensationProfile(7)).toBe(false)
+
+    const fan = estimateBassNutCompensation(6, 762, 939.8)!
+    expect(fan).toHaveLength(6)
+    expect(fan[0]).toBeGreaterThan(fan[fan.length - 1])
   })
 })

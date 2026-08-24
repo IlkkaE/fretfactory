@@ -45,11 +45,13 @@ describe('sanitizeStatePatch', () => {
     expect(sanitizeStatePatch({
       stringFeel: 'firm',
       stringAdvisorProfile: 'bass',
+      nutCompensationProfile: 'general-electric-bass',
       preferWoundG3: true,
       stringPitches: ['E2', 'H9', 'A2', 42],
     })).toEqual({
       stringFeel: 'firm',
       stringAdvisorProfile: 'bass',
+      nutCompensationProfile: 'general-electric-bass',
       preferWoundG3: true,
       stringPitches: ['E2', 'A2'],
     })

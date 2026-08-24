@@ -27,7 +27,7 @@ export type AppState = {
   // Per-string offset from the nominal nut contact point toward the bridge.
   showNutCompensation: boolean
   nutCompensationOffsets: number[]
-  nutCompensationProfile: 'custom' | 'general-electric-guitar'
+  nutCompensationProfile: 'custom' | 'general-electric-guitar' | 'general-electric-bass'
 
   // String advisor. Pitches run bass to treble; the profile is selected by a
   // preset or uses per-string family selection for custom instruments.

@@ -25,11 +25,15 @@ describe('parseHash', () => {
       stringPitches: ['B1', 'E2', 'A2'],
       stringFeel: 'loose',
       stringAdvisorProfile: 'bass',
+      nutCompensationProfile: 'general-electric-bass',
+      nutCompensationOffsets: [0.7, 0.6, 0.5],
       preferWoundG3: true,
     }))).toEqual({
       stringPitches: ['B1', 'E2', 'A2'],
       stringFeel: 'loose',
       stringAdvisorProfile: 'bass',
+      nutCompensationProfile: 'general-electric-bass',
+      nutCompensationOffsets: [0.7, 0.6, 0.5],
       preferWoundG3: true,
     })
   })
