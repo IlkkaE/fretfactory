@@ -22,6 +22,7 @@ describe('createDXF', () => {
     expect(layerEntityCount(result.content, 'STRINGS')).toBe(6)
     expect(layerEntityCount(result.content, 'FRETS')).toBeGreaterThan(0)
     expect(layerEntityCount(result.content, 'NUT_BRIDGE')).toBe(2)
+    expect(layerEntityCount(result.content, 'NUT_COMPENSATION')).toBe(0)
   })
 
   it('uses inches and omits string entities when requested', () => {
@@ -33,5 +34,17 @@ describe('createDXF', () => {
     expect(result.content).toContain('9\r\n$INSUNITS\r\n70\r\n1')
     expect(layerEntityCount(result.content, 'STRINGS')).toBe(0)
     expect(extMaxX(result.content)).toBeCloseTo(extMaxX(millimeters.content) / 25.4, 5)
+  })
+
+  it('exports visible compensation guides on their own layer only', () => {
+    const state = useAppState.getState()
+    const result = createDXF({
+      ...state,
+      showNutCompensation: true,
+      nutCompensationOffsets: [0.5, 0, -0.25, 0, 0, 0],
+    })!
+
+    expect(result.content).toContain('2\r\nNUT_COMPENSATION\r\n70\r\n0\r\n62\r\n1\r\n6\r\nCONTINUOUS\r\n370\r\n100')
+    expect(layerEntityCount(result.content, 'NUT_COMPENSATION')).toBe(2)
   })
 })

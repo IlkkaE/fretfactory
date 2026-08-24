@@ -22,6 +22,11 @@ export type AppState = {
   stringSpanBridge?: number
   overhang?: number
 
+  // Per-string offset from the nominal nut contact point toward the bridge.
+  showNutCompensation: boolean
+  nutCompensationOffsets: number[]
+  nutCompensationProfile: 'custom' | 'general-electric-guitar'
+
   // ── uutta: otelautamerkkien tila ──────────────────────────────
   markerFrets: number[]     // missä väleissä merkit
   markerSize?: number       // ristin halkaisija mm

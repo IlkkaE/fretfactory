@@ -1,5 +1,6 @@
 import { computeCurvedFretsRaw, computeCurvedNutBridge } from '../geom/curved'
 import { pchipToBezierSegments } from '../geom/pchip'
+import { computeNutCompensationLines } from '../geom/nutCompensation'
 import { PRESETS } from '../presets/instruments'
 import type { AppState } from '../types'
 import { fromMillimeters } from './units'
@@ -57,6 +58,9 @@ export function createDXF(s: AppState): { filename: string; content: string } | 
     s.strings, s.scaleTreble!, s.scaleBass!, s.anchorFret ?? 12,
     s.stringSpanNut!, s.stringSpanBridge!, s.overhang!, s.curvedExponent ?? 1,
   )
+  const compensation = s.showNutCompensation
+    ? computeNutCompensationLines(nb, s.strings, s.nutCompensationOffsets).filter(line => Math.abs(line.offsetMm) >= 1e-6)
+    : []
 
   let minX = Infinity
   let maxX = -Infinity
@@ -71,6 +75,7 @@ export function createDXF(s: AppState): { filename: string; content: string } | 
   rows.forEach(row => row.pts.forEach(include))
   nb.nut.pts.forEach(include)
   nb.bridge.pts.forEach(include)
+  compensation.forEach(line => include(line.compensated))
 
   const shift = (point: Point): Point => ({ x: point.x - minX, y: point.y - minY })
   const lines: Line[] = [
@@ -84,6 +89,9 @@ export function createDXF(s: AppState): { filename: string; content: string } | 
       lines.push({ layer: 'STRINGS', a: shift(nb.nut.pts[i + 1]), b: shift(nb.bridge.pts[i + 1]) })
     }
   }
+  compensation.forEach(line => lines.push({
+    layer: 'NUT_COMPENSATION', a: shift(line.nominal), b: shift(line.compensated),
+  }))
 
   for (const row of rows) {
     if (row.straight) {
@@ -142,8 +150,8 @@ export function createDXF(s: AppState): { filename: string; content: string } | 
   const convert = (value: number) => Number(fromMillimeters(value, s.units).toFixed(s.units === 'inch' ? 6 : 4))
   const unitsCode = s.units === 'inch' ? '1' : '4'
   const measurement = s.units === 'inch' ? '0' : '1'
-  const layers = [
-    ['EDGES', '7'], ['STRINGS', '8'], ['FRETS', '1'], ['NUT_BRIDGE', '3'], ['MARKERS', '5'],
+  const layers: Array<[string, string, string?]> = [
+    ['EDGES', '7'], ['STRINGS', '8'], ['FRETS', '1'], ['NUT_BRIDGE', '3'], ['MARKERS', '5'], ['NUT_COMPENSATION', '1', '100'],
   ]
   const dxf: string[] = [
     '0', 'SECTION', '2', 'HEADER',
@@ -156,8 +164,9 @@ export function createDXF(s: AppState): { filename: string; content: string } | 
     '0', 'SECTION', '2', 'TABLES',
     '0', 'TABLE', '2', 'LAYER', '70', String(layers.length),
   ]
-  for (const [name, color] of layers) {
+  for (const [name, color, lineweight] of layers) {
     dxf.push('0', 'LAYER', '2', name, '70', '0', '62', color, '6', 'CONTINUOUS')
+    if (lineweight) dxf.push('370', lineweight)
   }
   dxf.push('0', 'ENDTAB', '0', 'ENDSEC', '0', 'SECTION', '2', 'ENTITIES')
   lines.forEach(line => dxf.push(...lineEntity(line, convert)))

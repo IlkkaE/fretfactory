@@ -8,6 +8,7 @@ export const SVG_CONSTANTS = {
     FRET: '0.20mm',
     STRING: '0.12mm',
     NUT: '0.35mm',
+    NUT_COMPENSATION: '1mm',
     GHOST: '0.20mm',
   },
   COLORS: {
@@ -17,6 +18,7 @@ export const SVG_CONSTANTS = {
     NUT: '#000000',
     GHOST: '#16a34a',
     MARKER: '#9ca3af',
+    NUT_COMPENSATION: '#ef4444',
   },
 }
 
