@@ -128,11 +128,9 @@ export function NutCompensationControls() {
 				<button type="button" className="btn btn-block" onClick={applyGeneralCompensation} disabled={!canApplyGeneralProfile}>
 					Use estimated defaults
 				</button>
-				{s.nutCompensationProfile !== 'general-electric-guitar' && (
+				{s.nutCompensationProfile !== 'general-electric-guitar' && canApplyGeneralProfile && (
 					<div className="caption-small">
-						{canApplyGeneralProfile
-							? 'Uses the current per-string scale lengths. All values remain editable.'
-							: 'Estimated defaults are available for 6–8-string electric guitars.'}
+						Uses the current per-string scale lengths. All values remain editable.
 					</div>
 				)}
 				{s.showNutCompensation && Array.from({ length: s.strings }, (_, displayIndex) => {
