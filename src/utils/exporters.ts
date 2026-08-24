@@ -31,9 +31,9 @@ export function exportDXF(s: AppState) {
   download(result.filename, result.content, 'application/dxf')
 }
 
-export function exportSVG(s: AppState) {
+export function createSVG(s: AppState): { filename: string; content: string } | null {
   const canCurved = s.mode === 'curved' && !!(s.scaleTreble && s.scaleBass) && !!(s.stringSpanNut && s.stringSpanBridge && s.overhang != null)
-  if (!canCurved) return
+  if (!canCurved) return null
 
   const preset = PRESETS.find(p => p.id === s.selectedPresetId)
   const presetSlug = preset ? slug(`${preset.manufacturer}-${preset.model}`) : 'custom'
@@ -62,27 +62,30 @@ export function exportSVG(s: AppState) {
     const W = (maxX - minX) + 2 * MARGIN, H = (maxY - minY) + 2 * MARGIN
     const sx = -minX + MARGIN, sy = -minY + MARGIN
 
-    const lines: string[] = []
-    lines.push(`<line ${VEC} x1="${nb.nut.x_left+sx}" y1="${nb.nut.y_left+sy}" x2="${nb.bridge.x_left+sx}" y2="${nb.bridge.y_left+sy}" stroke="${C.EDGE}" stroke-width="${SW.EDGE}"/>`)
-    lines.push(`<line ${VEC} x1="${nb.nut.x_right+sx}" y1="${nb.nut.y_right+sy}" x2="${nb.bridge.x_right+sx}" y2="${nb.bridge.y_right+sy}" stroke="${C.EDGE}" stroke-width="${SW.EDGE}"/>`)
+    const drawingElements: string[] = []
+    const fretElements: string[] = []
+    drawingElements.push(`<line ${VEC} x1="${nb.nut.x_left+sx}" y1="${nb.nut.y_left+sy}" x2="${nb.bridge.x_left+sx}" y2="${nb.bridge.y_left+sy}" stroke="${C.EDGE}" stroke-width="${SW.EDGE}"/>`)
+    drawingElements.push(`<line ${VEC} x1="${nb.nut.x_right+sx}" y1="${nb.nut.y_right+sy}" x2="${nb.bridge.x_right+sx}" y2="${nb.bridge.y_right+sy}" stroke="${C.EDGE}" stroke-width="${SW.EDGE}"/>`)
     if (!s.removeStrings) {
       for (let i = 0; i < s.strings; i++) {
         const pNut = nb.nut.pts[i + 1], pBr = nb.bridge.pts[i + 1]
-        lines.push(`<line ${VEC} x1="${pNut.x+sx}" y1="${pNut.y+sy}" x2="${pBr.x+sx}" y2="${pBr.y+sy}" stroke="${C.STRING}" stroke-width="${SW.STRING}"/>`)
+        drawingElements.push(`<line ${VEC} x1="${pNut.x+sx}" y1="${pNut.y+sy}" x2="${pBr.x+sx}" y2="${pBr.y+sy}" stroke="${C.STRING}" stroke-width="${SW.STRING}"/>`)
       }
     }
-    for (const r of rows) {
+    rows.forEach((r, index) => {
+      const fretNumber = index + 1
+      const identity = `id="fret-${fretNumber}" data-name="Fret ${fretNumber}" inkscape:label="Fret ${fretNumber}"`
       if ((r as any).straight) {
-        lines.push(`<line ${VEC} x1="${r.x_left+sx}" y1="${r.y_left+sy}" x2="${r.x_right+sx}" y2="${r.y_right+sy}" stroke="${C.FRET}" stroke-width="${SW.FRET}"/>`)
+        fretElements.push(`<line ${identity} ${VEC} x1="${r.x_left+sx}" y1="${r.y_left+sy}" x2="${r.x_right+sx}" y2="${r.y_right+sy}" stroke="${C.FRET}" stroke-width="${SW.FRET}"/>`)
       } else {
         const d = pchipToBezierPath(r.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))
-        lines.push(`<path ${VEC} d="${d}" stroke="${C.FRET}" stroke-width="${SW.FRET}" fill="none"/>`)
+        fretElements.push(`<path ${identity} ${VEC} d="${d}" stroke="${C.FRET}" stroke-width="${SW.FRET}" fill="none"/>`)
       }
-    }
+    })
     const dNut = pchipToBezierPath(nb.nut.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))
     const dBr  = pchipToBezierPath(nb.bridge.pts.map(p => ({ x: p.x + sx, y: p.y + sy })))
-    lines.push(`<path ${VEC} d="${dNut}" stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
-    lines.push(`<path ${VEC} d="${dBr}"  stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
+    drawingElements.push(`<path ${VEC} d="${dNut}" stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
+    drawingElements.push(`<path ${VEC} d="${dBr}"  stroke="${C.NUT}" stroke-width="${SW.NUT}" fill="none"/>`)
 
     // Fret markers: intersection of guide line with ghost midlines
     const clamp01 = (v:number)=> Math.max(0, Math.min(1, v))
@@ -129,15 +132,21 @@ export function exportSVG(s: AppState) {
       }
       if (!hit) continue
       const cx = hit.x + sx, cy = hit.y + sy
-      lines.push(`<line ${VEC} x1="${cx-r}" y1="${cy}" x2="${cx+r}" y2="${cy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
-      lines.push(`<line ${VEC} x1="${cx}" y1="${cy-r}" x2="${cx}" y2="${cy+r}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
+      drawingElements.push(`<line ${VEC} x1="${cx-r}" y1="${cy}" x2="${cx+r}" y2="${cy}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
+      drawingElements.push(`<line ${VEC} x1="${cx}" y1="${cy-r}" x2="${cx}" y2="${cy+r}" stroke="${C.MARKER}" stroke-width="${SW.FRET}"/>`)
     }
 
     const physicalW = fromMillimeters(W, s.units)
     const physicalH = fromMillimeters(H, s.units)
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${physicalW}${unitAttr}" height="${physicalH}${unitAttr}" viewBox="0 0 ${W} ${H}">\n  <g fill="none">\n    ${lines.join('\n    ')}\n  </g>\n</svg>`
-    download(`${baseName}.svg`, svg, 'image/svg+xml')
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="${physicalW}${unitAttr}" height="${physicalH}${unitAttr}" viewBox="0 0 ${W} ${H}">\n  <g id="fretboard" data-name="Fretboard" inkscape:groupmode="layer" inkscape:label="Fretboard" fill="none">\n    ${drawingElements.join('\n    ')}\n  </g>\n  <g id="frets" data-name="Frets" inkscape:groupmode="layer" inkscape:label="Frets" fill="none">\n    ${fretElements.join('\n    ')}\n  </g>\n</svg>`
+    return { filename: `${baseName}.svg`, content: svg }
 }
+}
+
+export function exportSVG(s: AppState) {
+  const result = createSVG(s)
+  if (!result) return
+  download(result.filename, result.content, 'image/svg+xml')
 }
 
 /**
