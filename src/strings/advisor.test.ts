@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { defaultGuitarPitches, pitchFrequency, recommendString, stringScaleLengths, stringTensionLb } from './advisor'
+import { XL_NICKEL_CATALOG_COVERAGE, XL_NICKEL_STRINGS } from './catalog'
 
 describe('string gauge advisor', () => {
+  it('tracks current XL single availability separately from calculable entries', () => {
+    expect(XL_NICKEL_CATALOG_COVERAGE.available).toBe(66)
+    expect(XL_NICKEL_CATALOG_COVERAGE.calculable).toBe(59)
+    expect(XL_NICKEL_CATALOG_COVERAGE.unavailableForCalculation.map(item => item.gaugeInches))
+      .toEqual([.023, .037, .040, .050, .052, .065, .090])
+    expect(XL_NICKEL_STRINGS.find(item => item.gaugeInches === .080)?.evidence)
+      .toBe('published-unit-weight')
+  })
+
   it('parses concert pitch', () => {
     expect(pitchFrequency('A4')).toBeCloseTo(440, 8)
     expect(pitchFrequency('E2')).toBeCloseTo(82.4069, 3)

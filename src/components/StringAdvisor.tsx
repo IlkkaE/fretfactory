@@ -7,7 +7,12 @@ import {
   recommendString,
   stringScaleLengths,
 } from '../strings/advisor'
-import { XL_NICKEL_CATALOG_SOURCE, XL_NICKEL_CATALOG_VERSION } from '../strings/catalog'
+import {
+  XL_NICKEL_AVAILABILITY_SOURCE,
+  XL_NICKEL_CATALOG_COVERAGE,
+  XL_NICKEL_CATALOG_SOURCE,
+  XL_NICKEL_CATALOG_VERSION,
+} from '../strings/catalog'
 import { fromMillimeters } from '../utils/units'
 
 const OCTAVES = Array.from({ length: 10 }, (_, index) => index - 1)
@@ -74,7 +79,7 @@ export default function StringAdvisor() {
       <label className="label">
         String family
         <select className="select" value="xl-nickel" disabled aria-label="String family">
-          <option value="xl-nickel">XL nickel · plain / round wound</option>
+          <option value="xl-nickel">D’Addario XL Nickel · plain / round wound</option>
         </select>
       </label>
       <label className="label">
@@ -120,7 +125,7 @@ export default function StringAdvisor() {
                   <>
                     <div className="string-gauge">
                       {gaugeLabel(recommendation.match.gaugeInches)}
-                      <span>{recommendation.match.construction}</span>
+                      <span>{recommendation.match.construction}{recommendation.match.evidence === 'published-unit-weight' ? '' : ' · derived'}</span>
                     </div>
                     <div className={`string-status ${status?.className}`}>{status?.label}</div>
                     <div className="string-alternatives">
@@ -136,7 +141,7 @@ export default function StringAdvisor() {
         })}
       </div>}
       <div className="caption-small string-advisor-footnote">
-        Suggestions are starting points, not product-fit guarantees. Catalog: <a href={XL_NICKEL_CATALOG_SOURCE} target="_blank" rel="noreferrer">{XL_NICKEL_CATALOG_VERSION}</a>.
+        Suggestions are starting points, not product-fit guarantees. {XL_NICKEL_CATALOG_COVERAGE.calculable} tension entries from {XL_NICKEL_CATALOG_COVERAGE.available} currently listed single gauges. Sources: <a href={XL_NICKEL_CATALOG_SOURCE} target="_blank" rel="noreferrer">{XL_NICKEL_CATALOG_VERSION}</a> and <a href={XL_NICKEL_AVAILABILITY_SOURCE} target="_blank" rel="noreferrer">current singles</a>. “Derived” values are calculated from published plain-steel dimensions or a published tension value.
       </div>
     </div>
   )
