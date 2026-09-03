@@ -17,6 +17,25 @@ npm run build
 
 Outputs are written to `dist/`.
 
+## WebMCP (experimental)
+
+When the browser supports WebMCP, FretFactory registers four read-only tools for
+AI applications:
+
+- `get_fretboard_state`
+- `list_fretboard_presets`
+- `get_fretboard_preset`
+- `get_export_capabilities`
+
+The tools expose the current configuration, preset data, and export capabilities
+without changing application state or starting downloads. Length values follow
+the measurement unit selected in FretFactory. Browsers without WebMCP continue
+to use the normal interface without errors.
+
+For local Chrome testing, enable `chrome://flags/#enable-webmcp-testing`, restart
+Chrome, and inspect the registered tools in DevTools or with
+`await document.modelContext.getTools()`.
+
 ## Deploy to GitHub Pages
 
 1. Create a GitHub repository and push this project.

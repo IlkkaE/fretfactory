@@ -8,10 +8,25 @@ import Controls, { MarkerControls, NutCompensationControls } from './components/
 import AdsenseBlock from './components/Adsense'
 import UnitSelector from './components/UnitSelector'
 import StringAdvisor from './components/StringAdvisor'
+import { registerFretFactoryWebMcpTools } from './webmcp/register'
 
 export default function App() {
   // Ensure window/tab title reflects the new app name even during HMR
   React.useEffect(() => { try { document.title = 'FretFactory' } catch {} }, [])
+  React.useEffect(() => {
+    const registration = registerFretFactoryWebMcpTools()
+    if (!registration) return
+    let active = true
+
+    registration.ready.catch(error => {
+      if (active) console.warn('FretFactory WebMCP tool registration failed.', error)
+    })
+
+    return () => {
+      active = false
+      registration.dispose()
+    }
+  }, [])
   return (
     <div className="app-root">
       {/* animated paper.js background */}
