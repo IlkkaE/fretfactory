@@ -77,3 +77,17 @@ The landing hero copy was reduced by removing “Precision guitar-design tools f
 | Combined browser QA | PASS at 1440×900 and 390×844 | Routes, reload, landing links, no intro paragraph, actual Neck pocket/back exports, console/assets/overflow; known favicon 404 is cosmetic |
 | Artifact parity | PASS | Six snapshot hashes match; Neck pocket SVG and Back SVG byte-identical to prior verified artifacts; PDF page/dimensions match prior tested output |
 | Release boundary | AUTHORIZED, not yet completed | Commit/push/deploy are authorized for this release, but no deployed/public success is claimed in this capture |
+
+## Neck pocket template correction — 2026-09-13 pre-release capture
+
+The user approved publishing the corrected Neck pocket export. The GTR snapshot now uses the same upper-body template contour as the editor: one closed `CUT_OUTER` perimeter containing the neck-entry notch, with no transverse mouth-closing segment and no duplicate `ROUTE_NECK_POCKET`. Optional centreline annotations remain separate. Other geometry and the `potero-v1` replacement are unchanged. Earlier open-U-only descriptions above are historical.
+
+| Check | Result | Evidence / boundary |
+|---|---|---|
+| GTR implementation | PASS 227/227 unit, 28/28 focused export, 8/8 focused export E2E; build/format PASS | Reused unchanged source evidence from GTR `FEATURE_BRIEF.md`; no new full E2E claim |
+| Fret regression / release contract | PASS 59/59 and 6/6; build PASS; production audit 0 vulnerabilities | Current combined build |
+| Snapshot | Six hashed files; source SHA-256 `8acaed610fdd5bdfa1559d14aea3572fef6a38a6effdf54afadc93ea4a141c79` | Main bundle `index-D74vUZuv.js`; lazy PDF `pdf-DX4BcTem.js`; only compiled GTR snapshot is published |
+| Combined browser/artifact check | PASS desktop 1440×900 and mobile 390×844 | `.cache/pocket-release-local/results.json`: all six snapshot hashes verified; root/fretboard/GTR routes and reloads pass; downloaded pocket SVG/DXF match approved artifacts byte-for-byte, PDF render and page dimensions match; Back SVG unchanged; no console/page/asset errors except the excluded known favicon.ico 404. Poppler's known Symbol-font warning did not prevent rendering. Public checks remain separate. |
+| Deployment | Authorized, not yet completed | Existing main-push GitHub Pages workflow; final receipt will be stored in ignored `.cache/pocket-release-live/` |
+
+GTR source remains local/unborn. Physical paper scale, fabrication, third-party CAD import and native file-picker dialogs are not proven by this deployment. The prior snapshot is recoverable under `.cache/gtrfactory-release-cdtExE/previous-snapshot`.
