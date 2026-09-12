@@ -18,7 +18,7 @@
 }
 
 html, body, #root{ height:100%; }
-body{ background:#e6f4ff; margin:0; }
+body{ background:#080d14; margin:0; }
 
 /* Layout utilities */
 .app-grid{ position:relative; z-index:1; box-sizing:border-box; width:100%; margin:0; padding:8px; }
@@ -177,8 +177,7 @@ body{ background:#e6f4ff; margin:0; }
 /* Background helpers */
 .bg-fixed{ position:fixed; inset:0; z-index:-1; pointer-events:none; }
 .abs-fill{ position:absolute; inset:0; display:block; }
-.bg-rock{ background-image:url('/img/rock-autumn.webp'); background-size:cover; background-position:center; filter:brightness(1.04); }
-@media (max-width:768px){ .bg-rock{ background-image:url('/img/rock-autumn-mobile.webp'); } }
+.bg-rock{ background:radial-gradient(circle at 78% 18%,rgba(79,163,255,.17),transparent 28rem),radial-gradient(circle at 18% 82%,rgba(242,111,100,.10),transparent 28rem),repeating-linear-gradient(0deg,transparent 0 47px,rgba(166,201,235,.045) 48px 49px),repeating-linear-gradient(90deg,transparent 0 47px,rgba(166,201,235,.045) 48px 49px),#080d14; }
 
 /* Ownership credit */
 .owner-credit{
@@ -197,6 +196,13 @@ body{ background:#e6f4ff; margin:0; }
   -webkit-backdrop-filter:blur(2px);
   backdrop-filter:blur(2px);
 }
+
+/* Shared FretFactory chrome: the editor keeps its compact working theme. */
+.fretboard-chrome{ grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 10px 14px; color:#f5f0e7; }
+.fretboard-home-link{ color:inherit; font-family:'Dela Gothic One',ui-sans-serif,system-ui,sans-serif; font-size:16px; letter-spacing:-.05em; line-height:1; text-decoration:none; }
+.fretboard-home-link span{ margin-left:4px; color:#60a5fa; }
+.fretboard-section-label{ color:rgba(245,240,231,.68); font-family:'Yu Gothic UI','Yu Gothic','Meiryo',ui-sans-serif,system-ui,sans-serif; font-size:10px; letter-spacing:.12em; }
+@media (max-width:520px){ .fretboard-chrome{ margin-bottom:10px; } .fretboard-section-label{ font-size:8px; } .owner-credit{ margin-bottom:4px; } }
 
 /* Ads */
 .ad-card{ background: var(--panel); border:1px solid var(--card-border); border-radius:12px; padding:8px; }

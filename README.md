@@ -1,5 +1,18 @@
 # FretFactory (Vite + React)
 
+## Entry points
+
+- `/` opens the FretFactory landing page and tool selector.
+- `/fretboard/` opens the fretboard designer. Existing root-level `#state=...`
+  share URLs are redirected there automatically.
+- `/gtrfactory/` opens the packaged GTRFactory editor snapshot.
+
+The landing page and fretboard designer share a technical manga visual language,
+while the designer retains its compact, geometry-first working layout.
+
+The landing selector uses a shared blue/coral yin-yang visual and links to both
+editors; responsive manga panels and lamp lighting respect reduced motion.
+
 ## Development
 
 Install dependencies and start the dev server:
@@ -16,6 +29,10 @@ npm run build
 ```
 
 Outputs are written to `dist/`.
+
+Before a shared release, refresh the reviewed GTRFactory snapshot with
+`npm run refresh:gtrfactory`, then run `npm run build`. The refresh validates and
+hashes a unique sibling build while excluding original source and sourcemaps.
 
 ## WebMCP (experimental)
 

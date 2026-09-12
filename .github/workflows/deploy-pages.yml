@@ -36,6 +36,9 @@ jobs:
       - name: Test
         run: npm run test:run
 
+      - name: Check shared release contract
+        run: npm run test:release
+
       - name: Build
         run: npm run build
 

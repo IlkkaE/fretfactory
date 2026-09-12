@@ -12,7 +12,7 @@ import { registerFretFactoryWebMcpTools } from './webmcp/register'
 
 export default function App() {
   // Ensure window/tab title reflects the new app name even during HMR
-  React.useEffect(() => { try { document.title = 'FretFactory' } catch {} }, [])
+  React.useEffect(() => { try { document.title = 'FretFactory — Fretboard Designer' } catch {} }, [])
   React.useEffect(() => {
     const registration = registerFretFactoryWebMcpTools()
     if (!registration) return
@@ -28,11 +28,14 @@ export default function App() {
     }
   }, [])
   return (
-    <div className="app-root">
+    <div className="app-root fretboard-app">
       {/* animated paper.js background */}
       <Background />
-  {/* DevGui removed; using new Controls panel */}
       <div className="app-grid">
+        <header className="fretboard-chrome">
+          <a className="fretboard-home-link" href="/" aria-label="Return to FretFactory home">FRET<span>FACTORY</span></a>
+          <span className="fretboard-section-label">指板 / FRETBOARD DESIGNER</span>
+        </header>
         <div className="owner-credit" aria-label="Sivuston omistaja">
           @ilkka
         </div>

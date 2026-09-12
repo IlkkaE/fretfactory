@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "builtAt": "2026-09-12T14:10:25.950Z",
+  "sourceSha256": "fc478ea502dfa88b204197cc1f85ac446339e1d865fa92c7e3ab61972d73d63a",
+  "sourceInputCount": 93,
+  "sourceRevision": "unborn",
+  "sourceDirty": true,
+  "node": "v24.15.0",
+  "npm": "12.0.1",
+  "base": "/gtrfactory/",
+  "command": "npm run build -- --base /gtrfactory/ --outDir <staging>",
+  "files": {
+    "assets/index-CTZjOTgC.js": "097a2a80c95aaba624adaf23e127d8e1d935c03d3f169ec691e3bc75b284a260",
+    "assets/index-CWW2YZ7f.css": "85335812c22b86ebcf7947bf20700604ed00f8d0b23b9b08931cf07ddd171dc7",
+    "assets/pdf-C4ASS94G.js": "13b31a2b06be9801c8b8db40681f942ff3351aa98909623d40343da0609c7672",
+    "favicon.svg": "d67fefe147ab120817c261e329c7413e384f183317a1b8fb0b200abc4c85be13",
+    "index.html": "f5a63da738390740693c3d5b56d21eb42ebb04463511ff98e81a1f67726cee61"
+  }
+}

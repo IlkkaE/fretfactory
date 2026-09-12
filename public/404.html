@@ -3,10 +3,17 @@
 <head>
     <meta charset="utf-8">
     <title>Redirecting...</title>
-    <meta http-equiv="refresh" content="0; url=/fretfactory/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <p>If you are not redirected automatically, <a href="/fretfactory/">click here</a>.</p>
+    <script>
+      (function () {
+        try {
+          sessionStorage.setItem('fretfactory.spa-redirect', location.pathname + location.search + location.hash);
+        } catch (_) {}
+        location.replace('/');
+      }());
+    </script>
+    <p>If you are not redirected automatically, <a href="/">return to FretFactory</a>.</p>
 </body>
 </html>
