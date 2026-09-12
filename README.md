@@ -10,6 +10,15 @@
 The landing page and fretboard designer share a technical manga visual language,
 while the designer retains its compact, geometry-first working layout.
 
+Both editors use companion manga workshop backgrounds from different angles of
+the landing-page room: the cooler fretboard bench in FretFactory and the warmer
+guitar/drafting bench in GTRFactory. Optimized WebP images sit behind dark working
+surfaces; the artwork does not change editing geometry or exported files.
+The refreshed GTRFactory snapshot includes the English UI, original-body overlay,
+body reset, Off/10/5/1 mm body grid, corrected rear-cavity view, headstock access
+from neck editing and unified **Save** with an explicit download-copy fallback.
+Release evidence and deployment status are in [the workshop release ledger](docs/workshop-release.md).
+
 The landing selector uses a shared blue/coral yin-yang visual and links to both
 editors; responsive manga panels and lamp lighting respect reduced motion.
 

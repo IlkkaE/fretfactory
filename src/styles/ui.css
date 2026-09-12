@@ -177,7 +177,8 @@ body{ background:#080d14; margin:0; }
 /* Background helpers */
 .bg-fixed{ position:fixed; inset:0; z-index:-1; pointer-events:none; }
 .abs-fill{ position:absolute; inset:0; display:block; }
-.bg-rock{ background:radial-gradient(circle at 78% 18%,rgba(79,163,255,.17),transparent 28rem),radial-gradient(circle at 18% 82%,rgba(242,111,100,.10),transparent 28rem),repeating-linear-gradient(0deg,transparent 0 47px,rgba(166,201,235,.045) 48px 49px),repeating-linear-gradient(90deg,transparent 0 47px,rgba(166,201,235,.045) 48px 49px),#080d14; }
+.fretboard-app{ isolation:isolate; }
+.bg-rock{ background:linear-gradient(rgba(8,13,20,.20),rgba(8,13,20,.38)),url('/img/fretfactory-workshop-background-v1.webp') center / cover no-repeat,#080d14; }
 
 /* Ownership credit */
 .owner-credit{
