@@ -72,7 +72,6 @@ export default function LandingPage() {
       <div className="landing-copy">
         <p className="landing-eyebrow"><span lang="ja" aria-hidden="true">選択</span> SELECT</p>
         <h1 id="landing-title"><span>Design your</span>{' '}<span>dream</span>{' '}<span>instrument.</span></h1>
-        <p className="landing-intro">Precision guitar-design tools for the workshop, from the fretboard outward.</p>
       </div>
       <div className="choice-stage" aria-hidden="true">
         <p className="technical-note note-scale">SCALE<br />648.0 mm<br />(25.5 in)</p>

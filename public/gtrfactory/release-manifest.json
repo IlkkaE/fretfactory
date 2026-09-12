@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-09-12T18:58:26.851Z",
-  "sourceSha256": "1b78ef0eb648ae825c3794b31d473f225b72d671975ad0704e06e2b6b3c9692c",
+  "builtAt": "2026-09-12T20:42:58.564Z",
+  "sourceSha256": "b720adf3c4ce83271409da76e06c96799e4e10dbce96898bb11bb56805e132dc",
   "sourceInputCount": 97,
   "sourceRevision": "unborn",
   "sourceDirty": true,
@@ -11,10 +11,10 @@
   "command": "npm run build -- --base /gtrfactory/ --outDir <staging>",
   "files": {
     "assets/gtrfactory-workshop-background-v1-Bp2CYewL.webp": "9ea62fcf894a0eb6f3e145d375e7580302c7f6cf5ae6374a474a75a3c58588f1",
-    "assets/index-CGdv_KPt.js": "7468367fa3305568e9e7d16cc5393064dbc79cd109c45bfb6e2fb47a8cba2b4b",
+    "assets/index-DokJWe8_.js": "4111a5c706a585e966e513df8bf5e0835337a9b40543515f73299c3919fe524f",
     "assets/index-Ds0dVqrU.css": "1dce4f95cb1296b1c4450ddbc34e8574777db5ae373082747d89a443ebdf0fa1",
-    "assets/pdf-CwhaqlRa.js": "5ef89f24294a6a3b9e696620bdcdf7c841fcbfccaf5f0367fb2bb7ebe0f773c8",
+    "assets/pdf-B00-RxeM.js": "81af05a1a7b534aff3700bb4461f025a8af4d397826059ca9479bbba886d5a96",
     "favicon.svg": "d67fefe147ab120817c261e329c7413e384f183317a1b8fb0b200abc4c85be13",
-    "index.html": "3648a3f6aec809af8b4a62e196fa41a4a5db1a359840bacad4a8fa00db3d4261"
+    "index.html": "cf8ff2c7bd11c7fdd1e3f43497ba0807c127dd3852c13db657f9ed245f822bfb"
   }
 }

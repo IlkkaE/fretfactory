@@ -22,6 +22,9 @@ Release evidence and deployment status are in [the workshop release ledger](docs
 The landing selector uses a shared blue/coral yin-yang visual and links to both
 editors; responsive manga panels and lamp lighting respect reduced motion.
 
+The current landing hero no longer uses the sentence “Precision guitar-design
+tools for the workshop, from the fretboard outward.”
+
 ## Development
 
 Install dependencies and start the dev server:

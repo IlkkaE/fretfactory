@@ -64,3 +64,16 @@ The current user request authorizes this scoped implementation and the necessary
 | Independent release gate | release_check role, reviewed final staged scope and evidence | READY WITH WARNINGS | No blockers. GTR source remains local/unborn; native OS dialog, physical devices and fabrication unverified; old favicon.ico 404 cosmetic. Six staged artifact SHA-256 values exactly match manifest. |
 | GitHub Pages deployment | Existing main-push workflow | Pending at this pre-release capture | API confirms `www.fretfactory.fi`, workflow-based hosting; no settings changes. Actual run result is verified after this commit and reported with the delivery. |
 | Public HTTPS/browser | Live routes, emitted images and manifest hashes | Pending at this pre-release capture | Local success is not production evidence. Post-deploy evidence is retained in ignored `.cache/workshop-live/` and reported separately. |
+
+## Current release capture — 2026-09-12
+
+The landing hero copy was reduced by removing “Precision guitar-design tools for the workshop, from the fretboard outward.” The refreshed six-file GTRFactory snapshot includes the verified open Neck pocket export and direct `potero-v1` profile replacement. This section records pre-release evidence only; deployment and public HTTPS verification remain pending until the release action completes.
+
+| Check | Result | Scope and validity |
+| --- | --- | --- |
+| Fret regression and release contract | PASS 59/59; `test:release` 6/6 | Current Fret source; local checks |
+| Fret build and production audit | PASS; `index-BS4Bchro.js`; 0 production vulnerabilities | Current local build/dependency audit |
+| GTR snapshot refresh | PASS; source SHA-256 `b720adf3c4ce83271409da76e06c96799e4e10dbce96898bb11bb56805e132dc`; six snapshot files | Snapshot build; GTR source remains unborn/local |
+| Combined browser QA | PASS at 1440×900 and 390×844 | Routes, reload, landing links, no intro paragraph, actual Neck pocket/back exports, console/assets/overflow; known favicon 404 is cosmetic |
+| Artifact parity | PASS | Six snapshot hashes match; Neck pocket SVG and Back SVG byte-identical to prior verified artifacts; PDF page/dimensions match prior tested output |
+| Release boundary | AUTHORIZED, not yet completed | Commit/push/deploy are authorized for this release, but no deployed/public success is claimed in this capture |
