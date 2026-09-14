@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "builtAt": "2026-09-14T10:56:03.919Z",
+  "sourceSha256": "746672e73f37fb3d563a1a14b6301858b91d11f394c78380a5979cd012e074ca",
+  "sourceInputCount": 32,
+  "sourceRevision": "b8d8e2d5bf7cf256d636d3e26943aabc9a3bc825",
+  "sourceDirty": true,
+  "node": "v24.15.0",
+  "npm": "12.0.1",
+  "base": "/wirefactory/",
+  "command": "npm run build -- --base /wirefactory/ --outDir <staging>",
+  "files": {
+    "assets/index-BC3oRqMa.js": "5cf7d2f997e86221291e75abc1c87e9cf57a6c1fdcfb9711dc0b9f5db271efc4",
+    "assets/index-DljRouXx.css": "7e49a0f518dbea31b625e752a352d4394cb5c00d5f7c902bc7de323eeefc0058",
+    "assets/pdf-vendor-leR1PFcu.js": "3a250408b6ca25c37f9b999485e75e36d9b74cf85101d1812368075f73b8dc08",
+    "assets/react-vendor-BWnlGG0w.js": "d07ef737044d65fc422e2f6e64b4449236046d30bc09431a384ff93fc40ddbfc",
+    "index.html": "3458935094c19522b2b374d9a01bf0324e6198545eadf3f9a67969b39a462b20"
+  }
+}

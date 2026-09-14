@@ -2,7 +2,7 @@ import React from 'react'
 import guitarBlueprint from '../assets/landing-guitar.svg'
 import '../styles/landing.css'
 
-type Tool = 'fret' | 'gtr'
+type Tool = 'fret' | 'gtr' | 'wire'
 
 // Illustrative blueprint only; manufacturing geometry stays in the editor.
 function FretDrawing() {
@@ -23,28 +23,49 @@ function GuitarDrawing() {
   </g>
 }
 
+// Esquema decorativo: no representa un circuito listo para construir.
+function WireDrawing() {
+  return <g className="wire-drawing">
+    <rect x="228" y="465" width="94" height="42" rx="8" />
+    <rect x="398" y="465" width="94" height="42" rx="8" />
+    {[244, 256, 268, 280, 292, 304, 414, 426, 438, 450, 462, 474].map(x => <circle key={x} cx={x} cy="486" r="2.5" />)}
+    <path d="M275 507V550H325M445 507V550H395M360 575V612H450V585M325 550H300V612H270" />
+    <circle cx="360" cy="550" r="25" /><path d="M360 550l13-16" />
+    <circle cx="450" cy="570" r="15" /><path d="M450 570l7-8M262 603v18m-7-14v10m-7-7v4" />
+    <circle className="wire-junction" cx="300" cy="550" r="3" />
+    <path className="dimension-line" d="M228 447H492m-264-5v10m264-10v10" />
+  </g>
+}
+
 function InstrumentSelector() {
-  return <svg className="yin-yang-graphic" viewBox="0 0 720 720" aria-hidden="true">
+  return <svg className="workshop-selector-graphic" viewBox="0 0 720 720" aria-hidden="true">
     <defs>
-      <clipPath id="fret-side"><path d="M360 24A336 336 0 0 0 360 696C280 610 230 500 360 360C410 260 490 160 360 24Z" /></clipPath>
-      <clipPath id="gtr-side"><path d="M360 24A336 336 0 0 1 360 696C280 610 230 500 360 360C410 260 490 160 360 24Z" /></clipPath>
+      <clipPath id="fret-side"><path d="M360 360V24A336 336 0 0 0 69.015 528Z" /></clipPath>
+      <clipPath id="gtr-side"><path d="M360 360V24A336 336 0 0 1 650.985 528Z" /></clipPath>
+      <clipPath id="wire-side"><path d="M360 360L69.015 528A336 336 0 0 0 650.985 528Z" /></clipPath>
       <pattern id="blueprint-grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="currentColor" strokeWidth=".7" /></pattern>
     </defs>
-    <g className="selector-half selector-fretboard" clipPath="url(#fret-side)">
+    <g className="selector-sector selector-fretboard" clipPath="url(#fret-side)">
       <rect className="half-wash" width="720" height="720" />
       <rect className="blueprint-grid" width="720" height="720" fill="url(#blueprint-grid)" />
-      <FretDrawing />
+      <g transform="translate(57 90) scale(.5)"><FretDrawing /></g>
     </g>
-    <g className="selector-half selector-guitar" clipPath="url(#gtr-side)">
+    <g className="selector-sector selector-guitar" clipPath="url(#gtr-side)">
       <rect className="half-wash" width="720" height="720" />
       <rect className="blueprint-grid" width="720" height="720" fill="url(#blueprint-grid)" />
-      <GuitarDrawing />
+      <g transform="translate(160 62) scale(.65)"><GuitarDrawing /></g>
     </g>
-    <path className="disc-ring disc-ring-fret" d="M360 24A336 336 0 0 0 360 696" />
-    <path className="disc-ring disc-ring-gtr" d="M360 24A336 336 0 0 1 360 696" />
+    <g className="selector-sector selector-wiring" clipPath="url(#wire-side)">
+      <rect className="half-wash" width="720" height="720" />
+      <rect className="blueprint-grid" width="720" height="720" fill="url(#blueprint-grid)" />
+      <WireDrawing />
+    </g>
+    <path className="disc-ring disc-ring-fret" d="M360 24A336 336 0 0 0 69.015 528" />
+    <path className="disc-ring disc-ring-gtr" d="M360 24A336 336 0 0 1 650.985 528" />
+    <path className="disc-ring disc-ring-wire" d="M69.015 528A336 336 0 0 0 650.985 528" />
     <circle className="disc-guide" cx="360" cy="360" r="325" />
-    <path className="yin-seam" d="M360 24C490 160 410 260 360 360C230 500 280 610 360 696" />
-    <circle className="registration-dot" cx="380" cy="314" r="5" />
+    <path className="selector-seam" d="M360 24V360M69.015 528L360 360L650.985 528" />
+    <circle className="registration-dot" cx="360" cy="360" r="5" />
   </svg>
 }
 
@@ -93,6 +114,13 @@ export default function LandingPage() {
           <svg className="card-thumbnail gtr-thumbnail" viewBox="438 68 190 558" aria-hidden="true"><GuitarDrawing /></svg>
           <div className="tool-card-copy"><h2>GTRFactory</h2><p>Shape the whole instrument.</p></div>
           <span className="tool-cta">Open Guitar Designer <b aria-hidden="true">→</b></span>
+        </div>
+      </a>
+      <a className="tool-card tool-card-wire" href="/wirefactory/" {...activate('wire')}>
+        <div className="tool-card-shell">
+          <svg className="card-thumbnail wire-thumbnail" viewBox="215 440 290 190" aria-hidden="true"><WireDrawing /></svg>
+          <div className="tool-card-copy"><h2>WireFactory</h2><p>Explore guitar pickup wiring.</p></div>
+          <span className="tool-cta">Open Wiring Designer <b aria-hidden="true">→</b></span>
         </div>
       </a>
     </section>

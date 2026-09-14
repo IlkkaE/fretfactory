@@ -6,6 +6,7 @@
 - `/fretboard/` opens the fretboard designer. Existing root-level `#state=...`
   share URLs are redirected there automatically.
 - `/gtrfactory/` opens the packaged GTRFactory editor snapshot.
+- `/wirefactory/` opens the packaged WireFactory wiring designer snapshot.
 
 The landing page and fretboard designer share a technical manga visual language,
 while the designer retains its compact, geometry-first working layout.
@@ -19,8 +20,12 @@ body reset, Off/10/5/1 mm body grid, corrected rear-cavity view, headstock acces
 from neck editing and unified **Save** with an explicit download-copy fallback.
 Release evidence and deployment status are in [the workshop release ledger](docs/workshop-release.md).
 
-The landing selector uses a shared blue/coral yin-yang visual and links to both
-editors; responsive manga panels and lamp lighting respect reduced motion.
+The landing selector has three equal sectors separated by a Y: blue FretFactory,
+coral GTRFactory and amber WireFactory. Each card is a native link to its own
+static route. The WireFactory card opens **Open Wiring Designer** at
+`/wirefactory/`; its landing illustration remains decorative. The workshop
+background, fonts, responsive manga panels, focus/hover lighting and
+reduced-motion support retain the shared style.
 
 The current landing hero no longer uses the sentence “Precision guitar-design
 tools for the workshop, from the fretboard outward.”
@@ -95,3 +100,5 @@ VITE_GADS_SLOT_ID=YYYYYYYYYY
 Notes:
 - Ensure your domain is approved by AdSense and you comply with policies.
 - Ads may not appear in dev; verify on the production URL.
+
+The current shared package uses the latest local GTRFactory direction correction (right-handed neck right, left-handed neck left) and the WireFactory Check wiring analysis. Refresh the sibling snapshots with `npm run refresh:gtrfactory` and `npm run refresh:wirefactory`, then run `npm run test:release` and `npm run build`. The [current shared release ledger](docs/shared-release.md) owns publication and verification status.

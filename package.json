@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build --configLoader runner",
     "postbuild": "node scripts/prepare-static-routes.mjs",
     "refresh:gtrfactory": "node scripts/refresh-gtrfactory.mjs",
+    "refresh:wirefactory": "node scripts/refresh-wirefactory.mjs",
     "test:release": "node --test scripts/static-release.check.mjs",
     "preview": "vite preview --configLoader runner",
     "test": "vitest --configLoader runner",

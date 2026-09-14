@@ -1,5 +1,36 @@
 # Landing page correction — feature brief and verification ledger
 
+## Three-workshop selector — 2026-09-14
+
+IMPLEMENTED AND LOCALLY VERIFIED. The 2026-09-14 shared-release request supersedes the historical local-only boundary: WireFactory is now a native `/wirefactory/` link with “Open Wiring Designer”; direct/reload and public deployment verification belong to `docs/shared-release.md`.
+
+| Field | Current agreement |
+| --- | --- |
+| Goal / confirmed decisions | Replace yin-yang with three sectors separated by a Y; add the active WireFactory `/wirefactory/` destination. Keep the workshop/manga style and English UI. This is deliberately not the four-region peace symbol. |
+| Non-goals / preserved boundaries | No WireFactory editor, export, geometry or routing redesign; the reviewed existing application is packaged as a static snapshot. Existing FretFactory and GTRFactory links remain functional. |
+| Allowed assumptions | Blue fretboard at left, coral guitar at right, amber wiring below. WireFactory is a native anchor to `/wirefactory/` with the CTA “Open Wiring Designer”. |
+| Behaviour paths | Each card's pointer/focus highlights its sector; keyboard focus retains precedence over hover. WireFactory click/Enter opens `/wirefactory/`. Existing editor links and return routes remain unchanged. Narrow screens stack all three cards; reduced motion disables movement. |
+| Files / ownership | LandingPage.tsx, landing.css, landing tests, README and this ledger. Main agent implements this bounded local change. |
+| Data/API changes | None; wiring drawing is decorative, not a functional circuit or manufacturing output. |
+| Sequence | Three-sector SVG and third card, responsive fit, tests/build, independent browser review, documentation. |
+| Acceptance | Three distinct sectors with a Y divider and corresponding illustrations; all three English cards legible; WireFactory opens its native route; all three tool destinations work; no new runtime errors or horizontal overflow. |
+| Tests / verification | Static-render regression tests and full unit/build; local browser at desktop, intermediate and narrow widths, pointer/keyboard and reduced motion. |
+| Documentation / risks / open items | README describes the active three-way selector. Card fit and the native WireFactory link are checked locally. Physical devices and public deployment are separate evidence levels. |
+
+### Historical verification — three-workshop selector before link activation
+
+| Check | Method | Result / evidence | Validity |
+| --- | --- | --- | --- |
+| Full unit regression | `npm run test:run` | PASS 62/62, including three new static-render landing tests. | 2026-09-14; later change only moved a CSS annotation. |
+| Final production build | `npm run build` | PASS; `index-pUNmEUkk.js`, `index-CvoVbbon.css`; existing static routes preserved. | Final source, local preview at http://127.0.0.1:4173/. |
+| Independent source / responsive review | QA role; Edge screenshots at widths 1920, 1440, 1024, 901, 390 and 320 px | Source PASS; screenshots under `.cache/wire-landing-qa/`. Root visually inspected 1440/901/390/320: three sectors, readable cards, no horizontal overflow. | Local desktop browser and responsive simulation, not physical devices. |
+| Final visual correction | Root inspected fresh `final-901.png` | PASS; scale annotation moved to top 21% / left 35% to avoid the new fretboard illustration. | Final CSS build. |
+| Pointer / keyboard / navigation / reduced motion | Root's targeted Edge run; `.cache/wire-landing-qa/final-interactions.json` | Historical evidence: the then-disabled WireFactory control did not navigate. The current native-link and four-route checks are recorded in `docs/shared-release.md`. | 2026-09-14T07:46:16Z; final build. |
+| Verification boundary | QA harness followed by root's targeted check | The independent full interaction run did not finish because its Fretboard return selector incorrectly used `.landing-wordmark`. Root completed the missing checks with `.fretboard-home-link`; this is combined evidence, not a completed independent full run. | No open application failure from this harness error. |
+| Scope / publication | Git diff and request scope | Only landing component, CSS, landing tests and current documentation changed. GTR snapshot, editors, exports and existing untracked artwork retained. No commit, push or deployment. | Local-only change. |
+
+The earlier two-workshop and yin-yang descriptions below are historical.
+
 ## FEATURE BRIEF — DESIGN READY
 
 | Field | Agreement |

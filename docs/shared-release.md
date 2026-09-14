@@ -1,3 +1,70 @@
+# Four-route FretFactory, GTRFactory and WireFactory release — 2026-09-14
+
+## FEATURE BRIEF — DESIGN READY
+
+### Goal
+Publish the existing FretFactory landing, fretboard designer, packaged GTRFactory snapshot and packaged WireFactory snapshot at `/`, `/fretboard/`, `/gtrfactory/` and `/wirefactory/`.
+
+### Non-goals
+No geometry, file-format, editor-feature, source-repository, hosting-domain or HTTPS configuration changes. The snapshots publish browser builds only; neither sibling source checkout is published.
+
+### User-confirmed decisions
+The user requested local FretFactory landing publication, approved the latest WireFactory resolver integration and requested publication of the newest local GTRFactory and WireFactory versions. The landing WireFactory card is a native `/wirefactory/` link with the CTA “Open Wiring Designer”.
+
+### Allowed local assumptions
+Both sibling applications build with Node 24.15.0 and npm 12.0.1. A snapshot manifest identifies the exact hashed source inputs and emitted artifacts. `public/` is optional in WireFactory source and is only hashed when present.
+
+### Behaviour paths
+- Landing links natively to all three tools; direct route loads and reloads work for all four static entry points.
+- `refresh:gtrfactory` and `refresh:wirefactory` build to unique staging folders with their respective base paths, validate artifacts and manifests, then install a recoverable `public/<tool>` snapshot.
+- Static build validates both `public` snapshots and copies both snapshots into `dist`; the Fretboard compatibility entry remains unchanged.
+- WireFactory verification stays explicit: checked results permit exports, electrically stale results require another check, and unsupported analysis blocks exports.
+
+### Changed responsibilities or files
+Landing card/link/style/test; shared artifact validation and release-contract tests; WireFactory snapshot refresh script and package command; static-route preparation; generated `public/gtrfactory` and `public/wirefactory`; README and release/landing documentation.
+
+### Preserved boundaries
+Fretboard sharing, geometry and exports are unchanged. GTRFactory and WireFactory source histories, remotes and local development state are unchanged. No source maps or local absolute paths are accepted in snapshots.
+
+### Data model and interface changes
+No application-data change. A new `/wirefactory/` static route and schema-1 manifest mirror the existing GTR snapshot contract, with `/wirefactory/` asset base and source SHA-256.
+
+### Implementation order
+Verify current source evidence, update route/validator/link contracts, refresh both snapshots, build the combined static site, then conduct local and public browser/release verification.
+
+### Acceptance criteria
+All four routes return their intended static entry point on direct load and reload. Landing opens the native WireFactory link. Both manifests match emitted hashes and bases; artifacts have no source maps or local paths. WireFactory checked/stale export behaviour and newest GTRFactory behaviour are verified at their correct evidence levels.
+
+### Tests and other verification levels
+Release-contract and FretFactory unit tests, sibling app evidence, snapshot build/hash checks, combined local browser checks, GitHub Actions and public HTTPS checks are separate. Physical devices, fabrication and native dialogs are outside this release evidence.
+
+### Documentation impact
+README and landing verification now describe the active WireFactory route. This section supersedes earlier three-route release instructions; historical evidence below remains a record.
+
+### Risks
+The sibling source trees may be dirty or unborn, so manifests identify but do not replace source control. A snapshot proves bundled route artifacts, not a physical guitar circuit, fabrication result or native device behaviour. Public deployment evidence remains pending until the deploy action completes.
+
+### Implementation authorization
+The user request of 2026-09-14 explicitly authorizes publication of the local FretFactory landing, approved WireFactory version and newest local GTRFactory version.
+
+## VERIFICATION LEDGER — current release preparation
+
+| Check | Method | Result | Scope / validity |
+| --- | --- | --- | --- |
+| Fret release contracts | `npm run test:release` | PASS 9/9 | Includes both GTR and Wire bases, hash, map, local-path, missing-reference and cross-route negative cases. |
+| Fret unit suite | `npm run test:run -- --reporter=dot` | PASS 62/62, 14 files | Includes native WireFactory landing-link rendering. |
+| GTR snapshot | `npm run refresh:gtrfactory` | PASS | Base `/gtrfactory/`; source SHA-256 `6b2f06188c65109051dd857419d20b5e1b83bad9c5f47b5f17e1a8f02c521193`; staged snapshot installed. |
+| Wire snapshot | `npm run refresh:wirefactory` | PASS | Base `/wirefactory/`; source SHA-256 `746672e73f37fb3d563a1a14b6301858b91d11f394c78380a5979cd012e074ca`; staged snapshot installed. |
+| Final combined build | npm run build | PASS 5.18s; postbuild four routes | index-0XvdCVSP.js / index-DChbpwl6.css; final link cursor fix. |
+| Production dependency audit | npm audit --omit=dev | PASS, zero vulnerabilities | 2026-09-14 before publication. |
+| Wire active source | Full unit, build, format, Playwright | PASS 62/62 unit, 20/20 desktop/mobile E2E, build and format | Explicit check, drag preservation, stale/export gates and actual downloads. |
+| GTR active source | Full unit; type/format/build; prior exact-bundle ledger | PASS 246/246 fresh unit; type/format/build PASS; existing 38/38 E2E and 18/18 artifacts retained | Fresh GTR test log tmp/release-20260914/unit.log. Extra audit E2E aggregate was lost and is not counted. Port5174 dev process prevents port-conflict test. |
+| Exact source identity | Recompute each refresh script input hash | PASS both source SHA-256 values above | GTR103 inputs; Wire32 inputs. Reviewer initially used Wire config list for GTR, then retracted its false mismatch. |
+| Combined local browser / downloads | Edge1440x900 and390x844; four-route smoke | PASS both viewports, each56 same-origin requests, zero app/HTTP errors, six downloads | Native Wire link, direct/reload all routes, GTR handedness/Undo, Wire checked/stale gates. PDF parsed; SVG/DXF/BOM checked. Results in WireFactory output/shared-release-local-final/results.json. |
+| Visual review | Fresh local screenshots | PASS all six desktop/mobile landing/GTR/Wire images | Parent viewed actual screenshots after final build; no physical-device claim. |
+| Public release | GitHub Pages and public HTTPS/browser verification | PENDING | Completed only after publication and separate public checks. |
+
+---
 # Shared FretFactory / GTRFactory release
 
 ## FEATURE BRIEF — DESIGN READY
