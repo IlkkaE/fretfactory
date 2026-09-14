@@ -42,7 +42,7 @@ Release-contract and FretFactory unit tests, sibling app evidence, snapshot buil
 README and landing verification now describe the active WireFactory route. This section supersedes earlier three-route release instructions; historical evidence below remains a record.
 
 ### Risks
-The sibling source trees may be dirty or unborn, so manifests identify but do not replace source control. A snapshot proves bundled route artifacts, not a physical guitar circuit, fabrication result or native device behaviour. Public deployment evidence remains pending until the deploy action completes.
+The sibling source trees may be dirty or unborn, so manifests identify but do not replace source control. A snapshot proves bundled route artifacts, not a physical guitar circuit, fabrication result or native device behaviour. The production deployment and HTTPS/browser evidence are recorded in the current ledger below.
 
 ### Implementation authorization
 The user request of 2026-09-14 explicitly authorizes publication of the local FretFactory landing, approved WireFactory version and newest local GTRFactory version.
@@ -62,7 +62,10 @@ The user request of 2026-09-14 explicitly authorizes publication of the local Fr
 | Exact source identity | Recompute each refresh script input hash | PASS both source SHA-256 values above | GTR103 inputs; Wire32 inputs. Reviewer initially used Wire config list for GTR, then retracted its false mismatch. |
 | Combined local browser / downloads | Edge1440x900 and390x844; four-route smoke | PASS both viewports, each56 same-origin requests, zero app/HTTP errors, six downloads | Native Wire link, direct/reload all routes, GTR handedness/Undo, Wire checked/stale gates. PDF parsed; SVG/DXF/BOM checked. Results in WireFactory output/shared-release-local-final/results.json. |
 | Visual review | Fresh local screenshots | PASS all six desktop/mobile landing/GTR/Wire images | Parent viewed actual screenshots after final build; no physical-device claim. |
-| Public release | GitHub Pages and public HTTPS/browser verification | PENDING | Completed only after publication and separate public checks. |
+| Release gate and Git | Independent release_check; exact staged bytes | READY WITH WARNINGS; commit 8dfe215a698dbd1027d28fd8a07e78968f9f2a92 pushed main | 22-file allowlist, no output/ or original PNGs; generated vendor whitespace preserved to retain hash. |
+| GitHub Pages | [Actions run 34837173194](https://github.com/IlkkaE/fretfactory/actions/runs/34837173194) | SUCCESS | Build24s, deploy8s, completed 2026-09-14T11:14:47Z; deployed commit8dfe215. |
+| Public HTTPS identity | Fetch both manifests and all11 hashed app artifacts | PASS exact manifest and SHA-256 matches | https://www.fretfactory.fi; same GTR/Wire sources as the validated local build. |
+| Public browser / downloads | Fresh Edge desktop1440x900 and mobile390x844 | PASS both;54/55 same-origin requests; zero app/HTTP errors;12 downloads | All four routes reload; Wire link mouse/keyboard, Check wiring/stale gates, GTR handedness/Undo. SVG/DXF/BOM bytes match local downloads; PDFs parsed. Wire output/shared-release-live/results.json, checked2026-09-14T11:15:15Z. |
 
 ---
 # Shared FretFactory / GTRFactory release

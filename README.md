@@ -102,3 +102,5 @@ Notes:
 - Ads may not appear in dev; verify on the production URL.
 
 The current shared package uses the latest local GTRFactory direction correction (right-handed neck right, left-handed neck left) and the WireFactory Check wiring analysis. Refresh the sibling snapshots with `npm run refresh:gtrfactory` and `npm run refresh:wirefactory`, then run `npm run test:release` and `npm run build`. The [current shared release ledger](docs/shared-release.md) owns publication and verification status.
+
+Published on 2026-09-14 at [www.fretfactory.fi](https://www.fretfactory.fi/): the three-workshop landing, latest GTRFactory and WireFactory Check wiring build. All four routes, both app manifests and desktop/mobile browser/download checks passed against the public site. [Deployment evidence](docs/shared-release.md).
