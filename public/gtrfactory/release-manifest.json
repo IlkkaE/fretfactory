@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-09-14T10:55:09.874Z",
-  "sourceSha256": "6b2f06188c65109051dd857419d20b5e1b83bad9c5f47b5f17e1a8f02c521193",
+  "builtAt": "2026-09-15T09:46:23.973Z",
+  "sourceSha256": "0f4901030162b2aa8182cbd93367f166d04ba909b173aa588c6d5b5de5b525c8",
   "sourceInputCount": 103,
-  "sourceRevision": "unborn",
-  "sourceDirty": true,
+  "sourceRevision": "1ea59647faa50c842a8551b021741cda0288cc02",
+  "sourceDirty": false,
   "node": "v24.15.0",
   "npm": "12.0.1",
   "base": "/gtrfactory/",
@@ -15,6 +15,6 @@
     "assets/index-Ds0dVqrU.css": "1dce4f95cb1296b1c4450ddbc34e8574777db5ae373082747d89a443ebdf0fa1",
     "assets/pdf-BMME1_t1.js": "6ceaa8397f1ed5911bca40d258788b84792dc55f7eb899b145ff83e4dc4301ab",
     "favicon.svg": "d67fefe147ab120817c261e329c7413e384f183317a1b8fb0b200abc4c85be13",
-    "index.html": "0acb043baef2f3ac8a26a7efbfba39818dfb5ba8de1c7e877f4ce350c2cc21e8"
+    "index.html": "58c1483c93972cf17daf2e6a56fb672334eeb8f4cc7f72c81e29b217bfd94e0a"
   }
 }

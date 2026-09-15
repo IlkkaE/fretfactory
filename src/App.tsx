@@ -12,7 +12,7 @@ import { registerFretFactoryWebMcpTools } from './webmcp/register'
 
 export default function App() {
   // Ensure window/tab title reflects the new app name even during HMR
-  React.useEffect(() => { try { document.title = 'FretFactory — Fretboard Designer' } catch {} }, [])
+  React.useEffect(() => { try { document.title = 'FretFactory Fretboard Designer | Guitar Fretboard Design' } catch {} }, [])
   React.useEffect(() => {
     const registration = registerFretFactoryWebMcpTools()
     if (!registration) return

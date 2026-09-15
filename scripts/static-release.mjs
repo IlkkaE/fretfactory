@@ -40,8 +40,9 @@ export function validateArtifacts(root, base = DEFAULT_GTR_BASE) {
   const html = readFileSync(path.join(root, 'index.html'), 'utf8')
   const refs = [...html.matchAll(/(?:src|href)=["']([^"']+)["']/g)].map(match => match[1])
   if (!refs.some(ref => ref.startsWith(base + 'assets/') && ref.endsWith('.js'))) throw new Error('Snapshot base path missing')
+  const canonical = 'https://www.fretfactory.fi' + base
   for (const ref of refs) {
-    if (ref.startsWith('data:')) continue
+    if (ref.startsWith('data:') || ref === canonical) continue
     if (!ref.startsWith(base)) throw new Error('Unexpected snapshot HTML URL: ' + ref)
     if (!files.includes(ref.slice(base.length))) throw new Error('Missing referenced asset: ' + ref)
   }

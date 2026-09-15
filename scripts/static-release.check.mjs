@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { applySeoProfile, validateSeoSite } from './seo-metadata.mjs'
 import { artifactHashes, validateArtifacts, validateSnapshot } from './static-release.mjs'
 
 function fixture(t, base = '/gtrfactory/') {
@@ -36,6 +37,13 @@ test('inline data URLs are permitted without weakening route checks', t => {
   assert.doesNotThrow(() => validateArtifacts(root, '/wirefactory/'))
 })
 
+test('the route canonical URL is permitted while other external URLs fail validation', t => {
+  const root = fixture(t)
+  writeFileSync(path.join(root, 'index.html'), '<link rel="canonical" href="https://www.fretfactory.fi/gtrfactory/"><link href="/gtrfactory/favicon.svg"><script src="/gtrfactory/assets/app.js"></script>')
+  assert.doesNotThrow(() => validateArtifacts(root))
+  writeFileSync(path.join(root, 'index.html'), '<link rel="canonical" href="https://example.test/gtrfactory/"><link href="/gtrfactory/favicon.svg"><script src="/gtrfactory/assets/app.js"></script>')
+  assert.throws(() => validateArtifacts(root), /Unexpected snapshot HTML URL/)
+})
 test('source maps cannot enter the public snapshot', t => {
   const root = fixture(t)
   writeFileSync(path.join(root, 'assets/app.js.map'), '{}')
@@ -63,7 +71,21 @@ test('absolute local paths and source mapping hints fail validation', t => {
   writeFileSync(path.join(root, 'assets/app.js'), 'const x="C:/Programming/private/file.ts"')
   assert.throws(() => validateArtifacts(root), /Source disclosure/)
   writeFileSync(path.join(root, 'assets/app.js'), '//# sourceMappingURL=app.js.map')
+
   assert.throws(() => validateArtifacts(root), /Source disclosure/)
+})
+test('SEO metadata profiles and public route inventory are accepted', t => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'fret-seo-test-'))
+  t.after(() => rmSync(root, { recursive: true }))
+  mkdirSync(path.join(root, 'fretboard'))
+  const template = '<head><meta name="seo-metadata-profile" content="root" /><meta name="seo-metadata-end" content="true" /></head>'
+  writeFileSync(path.join(root, 'index.html'), applySeoProfile(template, 'root'))
+  writeFileSync(path.join(root, 'fretboard', 'index.html'), applySeoProfile(template, 'fretboard'))
+  writeFileSync(path.join(root, 'robots.txt'), 'User-agent: *\nAllow: /\n\nSitemap: https://www.fretfactory.fi/sitemap.xml\n')
+  writeFileSync(path.join(root, 'sitemap.xml'), '<?xml version="1.0"?><urlset><url><loc>https://www.fretfactory.fi/</loc></url><url><loc>https://www.fretfactory.fi/fretboard/</loc></url><url><loc>https://www.fretfactory.fi/gtrfactory/</loc></url><url><loc>https://www.fretfactory.fi/wirefactory/</loc></url></urlset>')
+  assert.doesNotThrow(() => validateSeoSite(root))
+  writeFileSync(path.join(root, 'sitemap.xml'), '<urlset><url><loc>https://www.fretfactory.fi/404.html</loc></url></urlset>')
+  assert.throws(() => validateSeoSite(root), /Unexpected sitemap route inventory/)
 })
 test('hash inventory is stable and excludes its own manifest', t => {
   const root = fixture(t)

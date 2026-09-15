@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-09-14T11:24:55.862Z",
-  "sourceSha256": "46f992a74e9bdec3639cb6bd920e3727e0db61dbb8cc3f22f4fae3ee50a3a49f",
-  "sourceInputCount": 33,
-  "sourceRevision": "b8d8e2d5bf7cf256d636d3e26943aabc9a3bc825",
-  "sourceDirty": true,
+  "builtAt": "2026-09-15T09:46:49.775Z",
+  "sourceSha256": "c0d78cbeadbfad130a0885ca8540389a4222b664b8f2b49532e1b67707ba8f2d",
+  "sourceInputCount": 35,
+  "sourceRevision": "b030f6ef7ccea89cdd93f99f107aed9e6ab9b78c",
+  "sourceDirty": false,
   "node": "v24.15.0",
   "npm": "12.0.1",
   "base": "/wirefactory/",
   "command": "npm run build -- --base /wirefactory/ --outDir <staging>",
   "files": {
-    "assets/index-BGxP4E4y.css": "e8bd3041c327dd564fd6954839b64f85e38984c5e4c02b8985696a3dce422cbb",
-    "assets/index-DiG8fFLZ.js": "5cf7d2f997e86221291e75abc1c87e9cf57a6c1fdcfb9711dc0b9f5db271efc4",
+    "assets/index-B7FTyubK.css": "1e18a17ed183076d48fc4844ad3263d7af099d2d51ccbcc159dbf4a9f8540b1f",
+    "assets/index-Dzc_xLHd.js": "4307504a2ce7e296bf8ba2e53e7bc0bcef91ee5a65dc1eae7a1405cf516f7fb6",
     "assets/pdf-vendor-leR1PFcu.js": "3a250408b6ca25c37f9b999485e75e36d9b74cf85101d1812368075f73b8dc08",
     "assets/react-vendor-BWnlGG0w.js": "d07ef737044d65fc422e2f6e64b4449236046d30bc09431a384ff93fc40ddbfc",
     "assets/wirefactory-workshop-v1-CQpGZNm6.webp": "fcbc87b57aeb7df0b5c96065ba9cbfc94b07001e470dc84c887bb64d39432295",
-    "index.html": "b6c519566c4bd5bab388490223dfac5585ffc5f96433c6c644e9256ede6ee0c8"
+    "index.html": "403bc0a82d94dbfe73c6b0cd14cf9a0212465226778d171f485e872742727628"
   }
 }

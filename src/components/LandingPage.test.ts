@@ -16,7 +16,7 @@ describe('landing workshop choices', () => {
     const html = renderToStaticMarkup(React.createElement(LandingPage))
     expect(html).toContain('href="/wirefactory/"')
     expect(html).toContain('WireFactory')
-    expect(html).toContain('Explore guitar pickup wiring.')
+    expect(html).toContain('Plan and check guitar pickup wiring.')
     expect(html).toContain('Open Wiring Designer')
   })
 
@@ -27,5 +27,12 @@ describe('landing workshop choices', () => {
     expect(html).toContain('clip-path="url(#wire-side)"')
     expect(html).not.toContain('yin-seam')
     expect(html).not.toContain('yin-yang-graphic')
+  })
+
+  it('describes the three connected guitar-design workflows in landing copy', () => {
+    const html = renderToStaticMarkup(React.createElement(LandingPage))
+    expect(html).toContain('from fretboard to wiring.')
+    expect(html).toContain('Design fretboards, scale lengths, and string layouts.')
+    expect(html).toContain('Design electric guitar bodies and templates.')
   })
 })

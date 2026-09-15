@@ -92,7 +92,7 @@ export default function LandingPage() {
     <section className="landing-hero" aria-labelledby="landing-title">
       <div className="landing-copy">
         <p className="landing-eyebrow"><span lang="ja" aria-hidden="true">選択</span> SELECT</p>
-        <h1 id="landing-title"><span>Design your</span>{' '}<span>dream</span>{' '}<span>instrument.</span></h1>
+        <h1 id="landing-title"><span>Design your</span>{' '}<span>guitar</span>{' '}<span>from fretboard to wiring.</span></h1>
       </div>
       <div className="choice-stage" aria-hidden="true">
         <p className="technical-note note-scale">SCALE<br />648.0 mm<br />(25.5 in)</p>
@@ -105,21 +105,21 @@ export default function LandingPage() {
       <a className="tool-card tool-card-fret" href="/fretboard" {...activate('fret')}>
         <div className="tool-card-shell">
           <svg className="card-thumbnail fret-thumbnail" viewBox="172 0 190 710" aria-hidden="true"><FretDrawing /></svg>
-          <div className="tool-card-copy"><h2>FretFactory</h2><p>Shape the fretboard.</p></div>
+          <div className="tool-card-copy"><h2>FretFactory</h2><p>Design fretboards, scale lengths, and string layouts.</p></div>
           <span className="tool-cta">Open Fretboard Designer <b aria-hidden="true">→</b></span>
         </div>
       </a>
       <a className="tool-card tool-card-gtr" href="/gtrfactory/" {...activate('gtr')}>
         <div className="tool-card-shell">
           <svg className="card-thumbnail gtr-thumbnail" viewBox="438 68 190 558" aria-hidden="true"><GuitarDrawing /></svg>
-          <div className="tool-card-copy"><h2>GTRFactory</h2><p>Shape the whole instrument.</p></div>
+          <div className="tool-card-copy"><h2>GTRFactory</h2><p>Design electric guitar bodies and templates.</p></div>
           <span className="tool-cta">Open Guitar Designer <b aria-hidden="true">→</b></span>
         </div>
       </a>
       <a className="tool-card tool-card-wire" href="/wirefactory/" {...activate('wire')}>
         <div className="tool-card-shell">
           <svg className="card-thumbnail wire-thumbnail" viewBox="215 440 290 190" aria-hidden="true"><WireDrawing /></svg>
-          <div className="tool-card-copy"><h2>WireFactory</h2><p>Explore guitar pickup wiring.</p></div>
+          <div className="tool-card-copy"><h2>WireFactory</h2><p>Plan and check guitar pickup wiring.</p></div>
           <span className="tool-cta">Open Wiring Designer <b aria-hidden="true">→</b></span>
         </div>
       </a>

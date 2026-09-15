@@ -8,6 +8,14 @@
 - `/gtrfactory/` opens the packaged GTRFactory editor snapshot.
 - `/wirefactory/` opens the packaged WireFactory wiring designer snapshot.
 
+
+## Search metadata
+
+The canonical public routes are `/`, `/fretboard/`, `/gtrfactory/`, and
+`/wirefactory/`. Root and fretboard receive distinct title, description,
+canonical, Open Graph, and Twitter metadata during the static build.
+`robots.txt` permits crawling and points to `sitemap.xml`, which lists only
+those four public routes.
 The landing page and fretboard designer share a technical manga visual language,
 while the designer retains its compact, geometry-first working layout.
 
