@@ -92,7 +92,7 @@ export default function LandingPage() {
     <section className="landing-hero" aria-labelledby="landing-title">
       <div className="landing-copy">
         <p className="landing-eyebrow"><span lang="ja" aria-hidden="true">選択</span> SELECT</p>
-        <h1 id="landing-title"><span>Design your</span>{' '}<span>guitar</span>{' '}<span>from fretboard to wiring.</span></h1>
+        <h1 id="landing-title"><span>Design your</span>{' '}<span>guitar</span></h1>
       </div>
       <div className="choice-stage" aria-hidden="true">
         <p className="technical-note note-scale">SCALE<br />648.0 mm<br />(25.5 in)</p>

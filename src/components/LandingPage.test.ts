@@ -31,7 +31,8 @@ describe('landing workshop choices', () => {
 
   it('describes the three connected guitar-design workflows in landing copy', () => {
     const html = renderToStaticMarkup(React.createElement(LandingPage))
-    expect(html).toContain('from fretboard to wiring.')
+    expect(html).toContain('<span>Design your</span> <span>guitar</span>')
+    expect(html).not.toContain('from fretboard to wiring.')
     expect(html).toContain('Design fretboards, scale lengths, and string layouts.')
     expect(html).toContain('Design electric guitar bodies and templates.')
   })
