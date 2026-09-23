@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-09-20T17:56:18.475Z",
-  "sourceSha256": "1e96983f735ca07dbc17dc69baab2683818305e8edfc819a1c14ee4f9049c8dd",
+  "builtAt": "2026-09-23T15:41:42.158Z",
+  "sourceSha256": "0c01ac6c3289f8ded032246b7372607939c8dbd37df1b72032d5887b6586cafb",
   "sourceInputCount": 103,
-  "sourceRevision": "8199cfd4b203feb850ba4079142b15e598d70c17",
-  "sourceDirty": false,
+  "sourceRevision": "da25cea55da198c17f33822678146148a11011e6",
+  "sourceDirty": true,
   "node": "v24.15.0",
   "npm": "12.0.1",
   "base": "/gtrfactory/",
   "command": "npm run build -- --base /gtrfactory/ --outDir <staging>",
   "files": {
     "assets/gtrfactory-workshop-background-v1-Bp2CYewL.webp": "9ea62fcf894a0eb6f3e145d375e7580302c7f6cf5ae6374a474a75a3c58588f1",
-    "assets/index-BC1xoxdp.js": "d0254cf9098d98b3275f25645ee69f93eef31b7f80b71272879be62b3594aa29",
-    "assets/index-Ds0dVqrU.css": "1dce4f95cb1296b1c4450ddbc34e8574777db5ae373082747d89a443ebdf0fa1",
-    "assets/pdf-DHfM0kVn.js": "2cb75fc646c6e4c298becae80ac49f2200d85895c870655914e8933ac8d7ffdd",
+    "assets/index-TGGEqosD.css": "8dc54782b776fd148fbd8480b49f2e3b496800aa396570a3603580f0d47f9b4f",
+    "assets/index-Wkjib1X6.js": "6a18499f32ddf3dc6076918031e3016443031f6c0c96d2904820fb38812c3984",
+    "assets/pdf-BHhfmBrm.js": "0ad77e4eead8ffa24178b71655857f3a52f4ad552354108c83ba1dc9931e2195",
     "favicon.svg": "d67fefe147ab120817c261e329c7413e384f183317a1b8fb0b200abc4c85be13",
-    "index.html": "18af4c8eb045e630c4fef5d05e631d31dc4a51b429e488ca4321777cb2a56a48"
+    "index.html": "1ed7eaa59647b87de14007aa5610f44933c521a067dc2045ef6341fa904bb218"
   }
 }
