@@ -28,6 +28,13 @@ body reset, Off/10/5/1 mm body grid, corrected rear-cavity view, headstock acces
 from neck editing and unified **Save** with an explicit download-copy fallback.
 Release evidence and deployment status are in [the workshop release ledger](docs/workshop-release.md).
 
+The current packaged GTRFactory snapshot is project-format **v13** and includes
+the headless headstock model for supported guitar string counts. It also
+includes Walnut, Swamp Ash, Maple and Figured Maple body textures. These assets
+are referenced relative to the `/gtrfactory/` route and are served from
+`/gtrfactory/textures/`, so the packaged editor works correctly under the
+published subpath.
+
 The landing selector has three equal sectors separated by a Y: blue FretFactory,
 coral GTRFactory and amber WireFactory. Each card is a native link to its own
 static route. The WireFactory card opens **Open Wiring Designer** at

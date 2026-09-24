@@ -1,5 +1,27 @@
 # Workshop backgrounds and current GTRFactory release — 2026-09-12
 
+## Current v13 snapshot and texture fix — 2026-09-24
+
+The packaged GTRFactory editor now contains the local v13 implementation,
+including the headless guitar model and the four body-finish textures:
+Walnut, Swamp Ash, Maple and Figured Maple. The texture files are published
+under `public/gtrfactory/textures/` and the application references them with
+relative `./textures/...` URLs. This is required for the `/gtrfactory/`
+subpath; the previous root-absolute `/textures/...` URLs returned 404 on the
+public domain.
+
+| Check | Result | Scope |
+| --- | --- | --- |
+| Local texture regression | PASS: 14/14 focused tests, typecheck, formatting and production build | GTRFactory source |
+| Shared release gate | PASS: 63/63 unit tests, 11/11 release-contract tests, production build and 0 production-audit vulnerabilities | FretFactory checkout |
+| GitHub Pages deployment | PASS: commit `a8eaa83`, [workflow run 36019323589](https://github.com/IlkkaE/fretfactory/actions/runs/36019323589) | `main` push and Pages deploy |
+| Public texture assets | PASS: all four `/gtrfactory/textures/*.jpg` URLs return HTTPS 200 with `image/jpeg` | Live site |
+| Public bundle | PASS: current bundle uses relative `./textures/` URLs and includes headless/texture features | Live `/gtrfactory/` route |
+
+The public package is a compiled, hash-validated GTRFactory snapshot; the
+separate GTRFactory source tree is not published by this deployment. Physical
+devices, native file dialogs and fabrication remain outside this verification.
+
 ## FEATURE BRIEF — IMPLEMENTED, publication authorized
 
 ### Goal
